@@ -1,0 +1,37 @@
+/* Smart Water Tank PWA - Optimized Custom Styles */
+
+/**
+ * Main App Container
+ * Provides gradient background with theme support
+ */
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+/* Dark mode support */
+.dark .App {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* System preference fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .App {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  }
+}
+
+/* PWA specific styles */
+@media (display-mode: standalone) {
+  .App {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .App {
+    overflow-x: hidden;
+  }
+}

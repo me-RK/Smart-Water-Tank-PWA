@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a73e8" />
+  <meta name="description" content="Real-time monitoring and control of smart water tank systems" />
+  
+  <!-- Manifest Link -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="/icon-192.svg" />
+  
+  <!-- Apple Web App -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Water Tank" />
+  
+  <!-- PWA Color -->
+  <meta name="theme-color" content="#1a73e8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0d47a1" media="(prefers-color-scheme: dark)" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" sizes="32x32" href="/icon-32.svg" />
+  <link rel="icon" type="image/svg+xml" sizes="16x16" href="/icon-16.svg" />
+  
+  <!-- Apple Splash Screens -->
+  <link rel="apple-touch-startup-image" href="/splash-640x1136.svg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/splash-750x1334.svg" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="/splash-1242x2208.svg" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="/splash-1125x2436.svg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+  
+  <title>Smart Water Tank Manager</title>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        // Use dynamic path based on current location
+        const swPath = window.location.pathname.includes('/smart-tank-pwa/') 
+          ? '/smart-tank-pwa/service-worker.js' 
+          : '/service-worker.js';
+        navigator.serviceWorker.register(swPath)
+          .then(reg => console.log('SW registered:', reg))
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+  
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
