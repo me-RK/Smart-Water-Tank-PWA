@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(() => {
   // For GitHub Pages deployment, use the repository name as base
   // For local development and other hosting, use root path
-  const base = process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES === 'true' 
-    ? '/smart-tank-pwa/' 
+  const base = process.env.GITHUB_PAGES === 'true' 
+    ? '/Smart-Water-Tank-PWA/' 
     : '/';
 
   return {

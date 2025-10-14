@@ -151,7 +151,7 @@ The app is configured for automatic deployment to GitHub Pages:
 
 #### Automatic Deployment
 1. **Push to main branch**: Automatic deployment via GitHub Actions
-2. **Access URL**: `https://yourusername.github.io/smart-tank-pwa/`
+2. **Access URL**: `https://yourusername.github.io/Smart-Water-Tank-PWA/`
 
 #### Manual Deployment
 ```bash
@@ -166,10 +166,10 @@ npm run deploy
 4. The workflow will automatically deploy on push to main
 
 ### Configuration
-- **Base Path**: `/smart-tank-pwa/` (configured in `vite.config.ts`)
+- **Base Path**: `/Smart-Water-Tank-PWA/` (configured in `vite.config.ts`)
 - **Service Worker**: Automatic registration and caching
 - **PWA Manifest**: Complete manifest for app installation
-- **Node.js Version**: 20 (specified in `.nvmrc`)
+- **Node.js Version**: 18 (specified in GitHub Actions)
 
 ### Troubleshooting Deployment
 If deployment fails:

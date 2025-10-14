@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist",
+    "build:github": "GITHUB_PAGES=true npm run build",
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit"
   },

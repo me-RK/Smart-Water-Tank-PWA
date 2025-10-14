@@ -2,8 +2,8 @@
   "name": "Smart Water Tank Manager",
   "short_name": "Water Tank",
   "description": "Real-time monitoring and control of smart water tank systems",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/Smart-Water-Tank-PWA/",
+  "scope": "/Smart-Water-Tank-PWA/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#1a73e8",
@@ -54,7 +54,7 @@
       "name": "Dashboard",
       "short_name": "Dashboard",
       "description": "View real-time tank status",
-      "url": "./dashboard",
+      "url": "/Smart-Water-Tank-PWA/dashboard",
       "icons": [
         {
           "src": "./icon-192.svg",
@@ -66,7 +66,7 @@
       "name": "Settings",
       "short_name": "Settings",
       "description": "Configure system settings",
-      "url": "./settings",
+      "url": "/Smart-Water-Tank-PWA/settings",
       "icons": [
         {
           "src": "./icon-192.svg",

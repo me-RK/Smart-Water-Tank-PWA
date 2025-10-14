@@ -42,8 +42,8 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         // Use dynamic path based on current location
-        const swPath = window.location.pathname.includes('/smart-tank-pwa/') 
-          ? '/smart-tank-pwa/service-worker.js' 
+        const swPath = window.location.pathname.includes('/Smart-Water-Tank-PWA/') 
+          ? '/Smart-Water-Tank-PWA/service-worker.js' 
           : '/service-worker.js';
         navigator.serviceWorker.register(swPath)
           .then(reg => console.log('SW registered:', reg))
