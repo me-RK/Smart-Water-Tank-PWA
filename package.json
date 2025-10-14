@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "deploy": "npm run build && gh-pages -d dist",
     "build:github": "GITHUB_PAGES=true npm run build",
+    "preview:github": "npm run build:github && npm run preview",
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit"
   },

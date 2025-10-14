@@ -11,7 +11,7 @@ export default defineConfig(() => {
 
   return {
     plugins: [react()],
-    base,
+    base: '/Smart-Water-Tank-PWA/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
