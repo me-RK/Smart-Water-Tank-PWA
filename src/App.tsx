@@ -9,6 +9,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './components/NotificationSystem';
 import { PWANotificationSystem } from './components/PWANotificationSystem';
 import DeviceDiscovery from './components/DeviceDiscovery';
+import { ESP32Connection } from './components/ESP32Connection';
+import { AndroidPermissions } from './utils/androidPermissions';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
@@ -47,7 +49,29 @@ const Settings = lazy(() => import('./pages/Settings').then(module => ({ default
 const AppContent: React.FC = () => {
   const wsContext = useContext(WebSocketContext);
   const [showDiscovery, setShowDiscovery] = useState(!wsContext?.deviceIP);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [showESP32Connection, setShowESP32Connection] = useState(false);
   const { isOnline } = useNetworkStatus();
+
+  // Initialize Android permissions
+  useEffect(() => {
+    const initializePermissions = async () => {
+      if (Capacitor.getPlatform() === 'android') {
+        const granted = await AndroidPermissions.requestAllPermissions();
+        setPermissionsGranted(granted);
+        console.log('Android permissions granted:', granted);
+      } else {
+        setPermissionsGranted(true);
+      }
+    };
+
+    initializePermissions();
+  }, []);
+
+  // Show ESP32 connection component for Android
+  if (Capacitor.getPlatform() === 'android' && showESP32Connection) {
+    return <ESP32Connection />;
+  }
 
   if (!wsContext?.isConnected && showDiscovery) {
     return <DeviceDiscovery onConnect={() => setShowDiscovery(false)} />;
@@ -55,6 +79,13 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="App">
+      {/* Debug Info for Android */}
+      {Capacitor.getPlatform() === 'android' && (
+        <div className="bg-gray-100 text-gray-800 text-center py-1 px-4 text-xs">
+          <span>Platform: {Capacitor.getPlatform()} | Native: {Capacitor.isNativePlatform() ? 'Yes' : 'No'} | Permissions: {permissionsGranted ? 'Granted' : 'Pending'}</span>
+        </div>
+      )}
+
       {/* Offline Banner */}
       {!isOnline && (
         <div className="bg-red-500 text-white text-center py-2 px-4">
@@ -90,6 +121,14 @@ const AppContent: React.FC = () => {
               >
                 Change Device
               </button>
+              {Capacitor.getPlatform() === 'android' && (
+                <button
+                  onClick={() => setShowESP32Connection(true)}
+                  className="text-sm text-green-600 hover:text-green-800 font-medium"
+                >
+                  ESP32 Manager
+                </button>
+              )}
             </div>
           </div>
         </header>
