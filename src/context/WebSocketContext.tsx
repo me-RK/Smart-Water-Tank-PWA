@@ -3,6 +3,7 @@ import type { WebSocketMessage, AppState } from '../types';
 import { initialAppState } from './WebSocketUtils';
 import { WebSocketContext } from './WebSocketContextDefinition';
 import type { WebSocketContextType } from './WebSocketContextDefinition';
+import { Capacitor } from '@capacitor/core';
 
 // Re-export the context for easier imports
 export { WebSocketContext };
@@ -486,6 +487,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     try {
+      // Log platform information for debugging
+      const platform = Capacitor.getPlatform();
+      const isNative = Capacitor.isNativePlatform();
+      console.log(`WebSocket - Platform: ${platform}, Native: ${isNative}`);
+
       // Use ws:// for HTTP (development) or http (local network)
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${ip}:81`;

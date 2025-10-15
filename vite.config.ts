@@ -7,7 +7,7 @@ export default defineConfig(() => {
   // For local development and other hosting, use root path
   const base = process.env.GITHUB_PAGES === 'true' 
     ? '/Smart-Water-Tank-PWA/' 
-    : '/';
+    : './'; // Changed for Capacitor compatibility
 
   return {
     plugins: [react()],
@@ -26,8 +26,7 @@ export default defineConfig(() => {
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           icons: ['lucide-react'],
         },
         chunkFileNames: 'assets/[name]-[hash].js',
@@ -38,8 +37,8 @@ export default defineConfig(() => {
     chunkSizeWarningLimit: 1000,
   },
   server: {
-    port: 3000,
-    host: true,
+    host: '0.0.0.0',
+    port: 5173,
   },
   preview: {
     port: 3000,

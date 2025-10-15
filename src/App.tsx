@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy, useContext, useState } from 'react';
+import { Suspense, lazy, useContext, useState, useEffect } from 'react';
 import { WebSocketProvider, WebSocketContext } from './context/WebSocketContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ConnectionGuard } from './components/ConnectionGuard';
@@ -9,6 +9,11 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './components/NotificationSystem';
 import { PWANotificationSystem } from './components/PWANotificationSystem';
 import DeviceDiscovery from './components/DeviceDiscovery';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { Capacitor } from '@capacitor/core';
+import { useAppLifecycle } from './hooks/useAppLifecycle';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './App.css';
 
 /**
@@ -42,6 +47,7 @@ const Settings = lazy(() => import('./pages/Settings').then(module => ({ default
 const AppContent: React.FC = () => {
   const wsContext = useContext(WebSocketContext);
   const [showDiscovery, setShowDiscovery] = useState(!wsContext?.deviceIP);
+  const { isOnline } = useNetworkStatus();
 
   if (!wsContext?.isConnected && showDiscovery) {
     return <DeviceDiscovery onConnect={() => setShowDiscovery(false)} />;
@@ -49,6 +55,13 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="App">
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div className="bg-red-500 text-white text-center py-2 px-4">
+          <span className="text-sm font-medium">No internet connection</span>
+        </div>
+      )}
+
       {/* Connection Status Header */}
       {wsContext?.deviceIP && (
         <header className="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
@@ -125,6 +138,30 @@ function App() {
   const basename = import.meta.env.PROD && import.meta.env.VITE_GITHUB_PAGES === 'true' 
     ? '/smart-tank-pwa' 
     : '/';
+
+  // Initialize Capacitor features
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // Hide splash screen after app loads
+      SplashScreen.hide();
+
+      // Configure status bar
+      StatusBar.setStyle({ style: Style.Dark });
+      StatusBar.setBackgroundColor({ color: '#3b82f6' });
+    }
+  }, []);
+
+  // App lifecycle management
+  useAppLifecycle(
+    () => {
+      // On app pause - reduce WebSocket heartbeat
+      console.log('App entering background');
+    },
+    () => {
+      // On app resume - restore normal operation
+      console.log('App entering foreground');
+    }
+  );
 
   return (
     <ErrorBoundary>
