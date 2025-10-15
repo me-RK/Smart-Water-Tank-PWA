@@ -13,6 +13,7 @@ import { ESP32Connection } from './components/ESP32Connection';
 import { AndroidPermissions } from './utils/androidPermissions';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { Keyboard, KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 import { Capacitor } from '@capacitor/core';
 import { useAppLifecycle } from './hooks/useAppLifecycle';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
@@ -187,6 +188,13 @@ function App() {
       // Configure status bar
       StatusBar.setStyle({ style: Style.Dark });
       StatusBar.setBackgroundColor({ color: '#3b82f6' });
+
+      // Configure keyboard
+      Keyboard.setResizeMode({ mode: KeyboardResize.Body });
+      Keyboard.setStyle({ style: KeyboardStyle.Dark });
+
+      // Safe area is handled by CSS env() variables
+      console.log('Safe area handled by CSS');
     }
   }, []);
 

@@ -18,8 +18,8 @@ buildscript {
         androidxJunitVersion = "1.1.5"
         androidxEspressoCoreVersion = "3.5.1"
         cordovaAndroidVersion = "10.1.1"
-        // CRITICAL: Use newer Kotlin version
-        kotlin_version = "1.9.0"
+        // CRITICAL: Use newer Kotlin version that supports JVM 21
+        kotlin_version = "1.9.22"
     }
     
     repositories {
@@ -28,7 +28,7 @@ buildscript {
     }
     
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath 'com.android.tools.build:gradle:8.13.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.4.0'
 
@@ -46,7 +46,7 @@ allprojects {
     }
 }
 
-// Configure Java toolchain for all projects
+// Configure Java for all projects
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
@@ -58,12 +58,16 @@ subprojects {
             }
         }
         
-        // Configure Java toolchain
-        if (project.hasProperty('java')) {
-            project.java {
-                toolchain {
-                    languageVersion = JavaLanguageVersion.of(17)
-                }
+        // Force Java 17 for all projects
+        project.tasks.withType(JavaCompile) {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+        
+        // Force Kotlin JVM target 17 for all projects
+        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            kotlinOptions {
+                jvmTarget = "17"
             }
         }
     }

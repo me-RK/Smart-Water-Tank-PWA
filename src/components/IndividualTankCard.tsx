@@ -1,5 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import { Droplets, AlertTriangle, CheckCircle } from 'lucide-react';
+import { LazyWrapper } from './LazyWrapper';
 
 /**
  * Enhanced IndividualTankCard component with improved animations and visual feedback
@@ -83,16 +84,17 @@ export const IndividualTankCard: React.FC<IndividualTankCardProps> = memo(({
   }
 
   return (
-    <div 
-      className={`
-        bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700
-        p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1
-        ${isHovered ? 'ring-1 ring-blue-500/30' : ''}
-        ${className}
-      `}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <LazyWrapper minHeight="200px">
+      <div 
+        className={`
+          bg-white dark:bg-gray-800 rounded-xl shadow-elevation-2 border border-gray-200 dark:border-gray-700
+          p-4 sm:p-6 transition-all duration-300 hover:shadow-elevation-3 hover:-translate-y-1
+          ${isHovered ? 'ring-1 ring-blue-500/30' : ''}
+          ${className}
+        `}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
@@ -173,6 +175,7 @@ export const IndividualTankCard: React.FC<IndividualTankCardProps> = memo(({
           <span className={level > 50 ? 'font-medium' : ''}>High</span>
         </div>
       </div>
-    </div>
+      </div>
+    </LazyWrapper>
   );
 });

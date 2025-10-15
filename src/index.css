@@ -66,6 +66,19 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Android-specific optimizations */
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Support for dynamic viewport units */
+  height: 100vh;
+  height: 100dvh;
 }
 
 body {
@@ -74,7 +87,18 @@ body {
   background-color: var(--color-background);
   color: var(--color-text);
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
+  
+  /* Android-specific body optimizations */
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Safe area support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* Custom scrollbar */
@@ -368,4 +392,443 @@ select:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ========== ANDROID-SPECIFIC STYLES ========== */
+
+/* Material Design Ripple Effect */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Touch target minimum sizes (48dp) */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-sm {
+  min-height: 40px;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-lg {
+  min-height: 56px;
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Material Design Card Elevations */
+.card-elevation-1 {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.card-elevation-2 {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card-elevation-3 {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.card-elevation-4 {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.card-elevation-5 {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Android-specific button styles */
+.android-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.0, 0.0, 0.2, 1);
+  will-change: transform, box-shadow;
+}
+
+.android-button:active {
+  transform: scale(0.98);
+}
+
+.android-button-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.android-button-primary:hover {
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+.android-button-secondary {
+  background: #f8fafc;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.android-button-secondary:hover {
+  background: #f1f5f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode button styles */
+.dark .android-button-secondary {
+  background: #374151;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+}
+
+.dark .android-button-secondary:hover {
+  background: #4b5563;
+}
+
+/* Responsive grid layouts */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .responsive-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Fluid spacing using clamp() */
+.fluid-padding {
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.fluid-margin {
+  margin: clamp(0.5rem, 1vw, 1rem);
+}
+
+.fluid-gap {
+  gap: clamp(0.5rem, 1.5vw, 1.5rem);
+}
+
+/* Android-specific input styles */
+.android-input {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.android-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .android-input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .android-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Android-specific modal styles */
+.android-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1rem;
+}
+
+.android-modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: material-enter 0.2s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+.dark .android-modal-content {
+  background: #1f2937;
+}
+
+/* Android-specific bottom sheet */
+.android-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
+  z-index: 50;
+}
+
+.android-bottom-sheet.open {
+  transform: translateY(0);
+}
+
+.dark .android-bottom-sheet {
+  background: #1f2937;
+}
+
+/* Android-specific list styles */
+.android-list {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.android-list-item {
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.android-list-item:last-child {
+  border-bottom: none;
+}
+
+.android-list-item:hover {
+  background: #f9fafb;
+}
+
+.android-list-item:active {
+  background: #f3f4f6;
+}
+
+.dark .android-list {
+  background: #374151;
+}
+
+.dark .android-list-item {
+  border-bottom-color: #4b5563;
+}
+
+.dark .android-list-item:hover {
+  background: #4b5563;
+}
+
+.dark .android-list-item:active {
+  background: #6b7280;
+}
+
+/* Android-specific progress indicators */
+.android-progress {
+  background: #e5e7eb;
+  border-radius: 9999px;
+  overflow: hidden;
+  height: 8px;
+}
+
+.android-progress-bar {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.android-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* Android-specific switch styles */
+.android-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: #d1d5db;
+  border-radius: 14px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.android-switch.active {
+  background: #3b82f6;
+}
+
+.android-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.android-switch.active .android-switch-thumb {
+  transform: translateX(20px);
+}
+
+/* Android-specific floating action button */
+.android-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 40;
+}
+
+.android-fab:hover {
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.4);
+  transform: scale(1.05);
+}
+
+.android-fab:active {
+  transform: scale(0.95);
+}
+
+/* Android-specific snackbar */
+.android-snackbar {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  background: #1f2937;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(100px);
+  transition: transform 0.3s ease;
+  z-index: 50;
+}
+
+.android-snackbar.show {
+  transform: translateY(0);
+}
+
+/* Android-specific app bar */
+.android-app-bar {
+  background: #3b82f6;
+  color: white;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* Responsive text sizing */
+.text-responsive-xs { font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
+.text-responsive-sm { font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem); }
+.text-responsive-base { font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); }
+.text-responsive-lg { font-size: clamp(1.125rem, 1rem + 0.625vw, 1.25rem); }
+.text-responsive-xl { font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem); }
+.text-responsive-2xl { font-size: clamp(1.5rem, 1.3rem + 1vw, 1.875rem); }
+.text-responsive-3xl { font-size: clamp(1.875rem, 1.6rem + 1.375vw, 2.25rem); }
+
+/* Android-specific container queries */
+@container (min-width: 320px) {
+  .container-responsive {
+    padding: 1rem;
+  }
+}
+
+@container (min-width: 768px) {
+  .container-responsive {
+    padding: 2rem;
+  }
+}
+
+/* Android-specific focus styles */
+.android-focus:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Android-specific loading states */
+.android-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .android-skeleton {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
 }

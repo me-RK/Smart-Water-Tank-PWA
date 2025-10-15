@@ -4,10 +4,13 @@ import { useWebSocket } from '../context/useWebSocket';
 import { usePageData } from '../hooks/usePageData';
 import { StatusCard } from '../components/StatusCard';
 import { IndividualTankCard } from '../components/IndividualTankCard';
-// Animation imports removed - using only icon animations now
 import { ThemeToggle } from '../components/ThemeToggle';
 import { PWAInstallButton } from '../components/PWAInstallButton';
-import { Settings, Wifi, WifiOff, RefreshCw, Loader2, WifiIcon } from 'lucide-react';
+import { MaterialButton } from '../components/MaterialButton';
+import { MaterialCard } from '../components/MaterialCard';
+import { MaterialBottomSheet } from '../components/MaterialBottomSheet';
+import { MaterialSnackbar } from '../components/MaterialSnackbar';
+import { Settings, Wifi, WifiOff, RefreshCw, Loader2, Menu } from 'lucide-react';
 
 /**
  * Enhanced Dashboard Component
@@ -49,6 +52,12 @@ export const Dashboard: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [reconnectionStatus, setReconnectionStatus] = useState<string>('');
   const [isAutoReconnecting, setIsAutoReconnecting] = useState(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    isOpen: boolean;
+    message: string;
+    variant: 'success' | 'error' | 'info' | 'warning';
+  }>({ isOpen: false, message: '', variant: 'info' });
   
   // Auto-sync functionality
   const [syncInterval, setSyncInterval] = useState<number>(() => {
@@ -113,10 +122,6 @@ export const Dashboard: React.FC = () => {
     disconnect();
   };
 
-  const handleConnectionSettings = () => {
-    // Trigger connection modal through ConnectionGuard
-    window.dispatchEvent(new CustomEvent('openConnectionModal'));
-  };
 
 
   // Effect to manage auto-sync based on connection status and sync interval changes
@@ -182,89 +187,44 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="android-app-bar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">WT</span>
               </div>
-              <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+              <h1 className="text-responsive-lg font-bold text-white">
                 Smart Water Tank
               </h1>
             </div>
 
-            <div className="flex items-center space-x-3">
-              {/* Connect/Disconnect Button with Settings */}
-              <div className="relative">
-                <button
-                  onClick={isConnected ? handleDisconnect : handleConnect}
-                  onMouseDown={(e) => {
-                    if (!isConnected && !isAutoReconnecting) {
-                      e.preventDefault();
-                      const timer = setTimeout(() => {
-                        handleConnectionSettings();
-                      }, 500); // Long press after 500ms
-                      
-                      const handleMouseUp = () => {
-                        clearTimeout(timer);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                      };
-                      
-                      document.addEventListener('mouseup', handleMouseUp);
-                    }
-                  }}
-                  disabled={isConnecting || isAutoReconnecting}
-                  className={`
-                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors font-medium text-sm
-                    focus:outline-none focus:ring-2 focus:ring-offset-2
-                    ${isConnected 
-                      ? 'bg-red-500 hover:bg-red-600 text-white focus:ring-red-500' 
-                      : isAutoReconnecting
-                      ? 'bg-orange-500 text-white focus:ring-orange-500'
-                      : 'bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500'
-                    }
-                    ${(isConnecting || isAutoReconnecting) ? 'opacity-50 cursor-not-allowed' : ''}
-                  `}
-                >
-                  {isConnecting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Connecting...</span>
-                    </>
-                  ) : isAutoReconnecting ? (
-                    <>
-                      <Wifi className="w-4 h-4 animate-pulse" />
-                      <span>Reconnecting...</span>
-                    </>
-                  ) : isConnected ? (
-                    <>
-                      <WifiOff className="w-4 h-4" />
-                      <span>Disconnect</span>
-                    </>
-                  ) : (
-                    <>
-                      <Wifi className="w-4 h-4" />
-                      <span>Connect</span>
-                    </>
-                  )}
-                </button>
-                
-                {/* Settings Icon Overlay for Connect Button */}
-                {!isConnected && !isConnecting && !isAutoReconnecting && (
-                  <button
-                    onClick={handleConnectionSettings}
-                    className="
-                      absolute -top-1 -right-1 w-5 h-5 bg-gray-600 hover:bg-gray-700
-                      text-white rounded-full flex items-center justify-center
-                      transition-colors text-xs
-                    "
-                    title="Connection Settings"
-                  >
-                    <WifiIcon className="w-3 h-3" />
-                  </button>
-                )}
-              </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowBottomSheet(true)}
+                className="md:hidden p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                aria-label="Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+
+              {/* Connect/Disconnect Button */}
+              <MaterialButton
+                variant={isConnected ? 'secondary' : 'primary'}
+                size="small"
+                loading={isConnecting}
+                disabled={isAutoReconnecting}
+                onClick={isConnected ? handleDisconnect : handleConnect}
+                icon={isConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : 
+                      isAutoReconnecting ? <Wifi className="w-4 h-4 animate-pulse" /> :
+                      isConnected ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+                className="hidden sm:flex"
+              >
+                {isConnecting ? 'Connecting...' : 
+                 isAutoReconnecting ? 'Reconnecting...' :
+                 isConnected ? 'Disconnect' : 'Connect'}
+              </MaterialButton>
 
 
 
@@ -291,124 +251,120 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+          {/* Status Card */}
+          <MaterialCard elevation={2} className="animate-fade-in-up">
+            <StatusCard
+              connected={appState.systemStatus.connected}
+              lastUpdated={appState.systemStatus.lastUpdated}
+              runtime={appState.systemStatus.runtime}
+              motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
+              motor1Status={appState.systemStatus.motor1Status}
+              motor2Status={appState.systemStatus.motor2Status}
+              motor1Enabled={appState.systemStatus.motor1Enabled}
+              motor2Enabled={appState.systemStatus.motor2Enabled}
+              motorConfig={appState.systemStatus.motorConfig}
+              mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
+              autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
+              autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
+              autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
+            />
+          </MaterialCard>
 
-        {/* Status Card */}
-        <div className="mb-8">
-          <StatusCard
-            connected={appState.systemStatus.connected}
-            lastUpdated={appState.systemStatus.lastUpdated}
-            runtime={appState.systemStatus.runtime}
-            motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
-            motor1Status={appState.systemStatus.motor1Status}
-            motor2Status={appState.systemStatus.motor2Status}
-            motor1Enabled={appState.systemStatus.motor1Enabled}
-            motor2Enabled={appState.systemStatus.motor2Enabled}
-            motorConfig={appState.systemStatus.motorConfig}
-            mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
-            autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
-            autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
-            autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
-          />
-        </div>
-
-        {/* Tank Monitoring */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-              Tank Monitoring
-            </h2>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <label className="text-sm text-gray-600 dark:text-gray-400">
-                  Auto-sync:
-                </label>
-                <select
-                  value={syncInterval}
-                  onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
-                  className="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          {/* Tank Monitoring */}
+          <MaterialCard elevation={2} className="animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
+              <h2 className="text-responsive-xl font-semibold text-gray-800 dark:text-gray-200">
+                Tank Monitoring
+              </h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm text-gray-600 dark:text-gray-400">
+                    Auto-sync:
+                  </label>
+                  <select
+                    value={syncInterval}
+                    onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
+                    className="android-input text-sm"
+                  >
+                    <option value={0}>Off</option>
+                    <option value={2000}>2s</option>
+                    <option value={5000}>5s</option>
+                    <option value={10000}>10s</option>
+                    <option value={30000}>30s</option>
+                    <option value={60000}>1m</option>
+                  </select>
+                </div>
+                <MaterialButton
+                  variant="primary"
+                  size="small"
+                  loading={isRefreshing}
+                  disabled={!isConnected}
+                  onClick={handleSyncData}
+                  icon={<RefreshCw className="w-4 h-4" />}
                 >
-                  <option value={0}>Off</option>
-                  <option value={2000}>2s</option>
-                  <option value={5000}>5s</option>
-                  <option value={10000}>10s</option>
-                  <option value={30000}>30s</option>
-                  <option value={60000}>1m</option>
-                </select>
-              </div>
-              <button
-                onClick={handleSyncData}
-                disabled={!isConnected || isRefreshing}
-                className={`
-                  px-3 py-1 rounded-md text-sm font-medium transition-colors flex items-center space-x-1
-                  ${isConnected && !isRefreshing
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }
-                `}
-              >
-                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span>Sync Now</span>
-              </button>
-            </div>
-          </div>
-          
-          {/* Individual Tank Cards - Only show active sensors */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Tank A Upper */}
-            {appState.systemSettings.sensors.upperTankA && (
-              <IndividualTankCard
-                tankName="Tank A"
-                tankType="upper"
-                level={appState.tankData.tankA.upper}
-                isActive={appState.systemSettings.sensors.upperTankA}
-              />
-            )}
-            
-            {/* Tank A Lower */}
-            {appState.systemSettings.sensors.lowerTankA && (
-              <IndividualTankCard
-                tankName="Tank A"
-                tankType="lower"
-                level={appState.tankData.tankA.lower}
-                isActive={appState.systemSettings.sensors.lowerTankA}
-              />
-            )}
-            
-            {/* Tank B Upper */}
-            {appState.systemSettings.sensors.upperTankB && (
-              <IndividualTankCard
-                tankName="Tank B"
-                tankType="upper"
-                level={appState.tankData.tankB.upper}
-                isActive={appState.systemSettings.sensors.upperTankB}
-              />
-            )}
-            
-            {/* Tank B Lower */}
-            {appState.systemSettings.sensors.lowerTankB && (
-              <IndividualTankCard
-                tankName="Tank B"
-                tankType="lower"
-                level={appState.tankData.tankB.lower}
-                isActive={appState.systemSettings.sensors.lowerTankB}
-              />
-            )}
-          </div>
-          
-          {/* Show message if no tanks are enabled */}
-          {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
-             appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
-              <div className="text-gray-500 dark:text-gray-400">
-                <p className="text-sm font-medium mb-2">No Tank Sensors Enabled</p>
-                <p className="text-xs">
-                  Enable tank sensors in Settings to monitor tank levels
-                </p>
+                  Sync Now
+                </MaterialButton>
               </div>
             </div>
-          )}
-        </div>
+          
+            {/* Individual Tank Cards - Only show active sensors */}
+            <div className="responsive-grid">
+              {/* Tank A Upper */}
+              {appState.systemSettings.sensors.upperTankA && (
+                <IndividualTankCard
+                  tankName="Tank A"
+                  tankType="upper"
+                  level={appState.tankData.tankA.upper}
+                  isActive={appState.systemSettings.sensors.upperTankA}
+                />
+              )}
+              
+              {/* Tank A Lower */}
+              {appState.systemSettings.sensors.lowerTankA && (
+                <IndividualTankCard
+                  tankName="Tank A"
+                  tankType="lower"
+                  level={appState.tankData.tankA.lower}
+                  isActive={appState.systemSettings.sensors.lowerTankA}
+                />
+              )}
+              
+              {/* Tank B Upper */}
+              {appState.systemSettings.sensors.upperTankB && (
+                <IndividualTankCard
+                  tankName="Tank B"
+                  tankType="upper"
+                  level={appState.tankData.tankB.upper}
+                  isActive={appState.systemSettings.sensors.upperTankB}
+                />
+              )}
+              
+              {/* Tank B Lower */}
+              {appState.systemSettings.sensors.lowerTankB && (
+                <IndividualTankCard
+                  tankName="Tank B"
+                  tankType="lower"
+                  level={appState.tankData.tankB.lower}
+                  isActive={appState.systemSettings.sensors.lowerTankB}
+                />
+              )}
+            </div>
+          
+            {/* Show message if no tanks are enabled */}
+            {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
+               appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
+              <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
+                <div className="text-gray-500 dark:text-gray-400">
+                  <p className="text-sm font-medium mb-2">No Tank Sensors Enabled</p>
+                  <p className="text-xs">
+                    Enable tank sensors in Settings to monitor tank levels
+                  </p>
+                </div>
+              </div>
+            )}
+          </MaterialCard>
 
         {/* Debug Panel - Remove in production */}
         {process.env.NODE_ENV === 'development' && (
@@ -653,8 +609,66 @@ export const Dashboard: React.FC = () => {
             <span className="text-sm font-medium">{reconnectionStatus}</span>
           </div>
         )}
+        </div>
       </main>
 
+      {/* Mobile Bottom Sheet */}
+      <MaterialBottomSheet
+        isOpen={showBottomSheet}
+        onClose={() => setShowBottomSheet(false)}
+        title="Quick Actions"
+      >
+        <div className="space-y-4">
+          <MaterialButton
+            variant="primary"
+            fullWidth
+            onClick={() => {
+              setShowBottomSheet(false);
+              if (isConnected) {
+                handleDisconnect();
+              } else {
+                handleConnect();
+              }
+            }}
+            icon={isConnected ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+          >
+            {isConnected ? 'Disconnect' : 'Connect'}
+          </MaterialButton>
+          
+          <MaterialButton
+            variant="outlined"
+            fullWidth
+            onClick={() => {
+              setShowBottomSheet(false);
+              navigate('/settings');
+            }}
+            icon={<Settings className="w-4 h-4" />}
+          >
+            Settings
+          </MaterialButton>
+          
+          <MaterialButton
+            variant="outlined"
+            fullWidth
+            onClick={() => {
+              setShowBottomSheet(false);
+              handleSyncData();
+            }}
+            icon={<RefreshCw className="w-4 h-4" />}
+            disabled={!isConnected}
+          >
+            Sync Data
+          </MaterialButton>
+        </div>
+      </MaterialBottomSheet>
+
+      {/* Snackbar */}
+      <MaterialSnackbar
+        isOpen={snackbar.isOpen}
+        onClose={() => setSnackbar(prev => ({ ...prev, isOpen: false }))}
+        message={snackbar.message}
+        variant={snackbar.variant}
+      />
     </div>
   );
 };

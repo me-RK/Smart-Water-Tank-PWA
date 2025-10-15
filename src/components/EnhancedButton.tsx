@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Capacitor } from '@capacitor/core';
 
 /**
  * Enhanced Button Component
@@ -56,8 +58,17 @@ export const EnhancedButton: React.FC<EnhancedButtonProps> = ({
     lg: 'px-6 py-3 text-base'
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!disabled && !loading && onClick) {
+      // Haptic feedback for Android
+      if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+        try {
+          await Haptics.impact({ style: ImpactStyle.Light });
+        } catch (error) {
+          console.log('Haptics not available:', error);
+        }
+      }
+
       setIsPressed(true);
       setTimeout(() => setIsPressed(false), 150);
       onClick();

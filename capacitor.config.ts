@@ -82,6 +82,26 @@ const config: CapacitorConfig = {
       splashImmersive: true,
     },
     
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#3b82f6',
+      overlaysWebView: false,
+    },
+    
+    Keyboard: {
+      resize: 'body',
+      style: 'dark',
+      resizeOnFullScreen: true,
+    },
+    
+    SafeArea: {
+      enabled: true,
+    },
+    
+    Haptics: {
+      enabled: true,
+    },
+    
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
     },
