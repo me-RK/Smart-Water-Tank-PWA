@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Smart Water Tank</string>
+    <string name="title_activity_main">Smart Water Tank</string>
+    <string name="package_name">com.smartwatertank.app</string>
+    <string name="custom_url_scheme">com.smartwatertank.app</string>
+</resources>
