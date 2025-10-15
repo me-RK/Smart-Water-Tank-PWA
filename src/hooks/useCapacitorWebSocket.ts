@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 interface UseCapacitorWebSocketProps {
   url: string;
-  onMessage: (data: any) => void;
+  onMessage: (data: unknown) => void;
   onError?: (error: Event) => void;
   autoReconnect?: boolean;
 }
@@ -26,7 +26,7 @@ export const useCapacitorWebSocket = ({
     console.log(`Running on ${platform}, Native: ${isNative}`);
   }, [platform, isNative]);
 
-  const connect = () => {
+  const connect = useCallback(() => {
     try {
       // Ensure proper WebSocket URL
       const wsUrl = url.startsWith('ws://') || url.startsWith('wss://') 
@@ -76,7 +76,7 @@ export const useCapacitorWebSocket = ({
     } catch (error) {
       console.error('Failed to create WebSocket:', error);
     }
-  };
+  }, [url, onMessage, onError, autoReconnect]);
 
   const disconnect = () => {
     if (reconnectTimeoutRef.current) {
@@ -88,7 +88,7 @@ export const useCapacitorWebSocket = ({
     }
   };
 
-  const sendMessage = (data: any) => {
+  const sendMessage = (data: unknown) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data));
       return true;
@@ -99,7 +99,7 @@ export const useCapacitorWebSocket = ({
   useEffect(() => {
     connect();
     return () => disconnect();
-  }, [url]);
+  }, [url, connect]);
 
   return {
     isConnected,

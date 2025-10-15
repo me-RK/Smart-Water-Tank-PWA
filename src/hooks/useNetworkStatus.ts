@@ -6,7 +6,7 @@ export const useNetworkStatus = () => {
   const [connectionType, setConnectionType] = useState<string>('unknown');
 
   useEffect(() => {
-    let listener: any;
+    let listener: { remove: () => void } | undefined;
 
     const setupListener = async () => {
       const checkStatus = async () => {

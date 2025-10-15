@@ -3,7 +3,7 @@
 	"appName": "Smart Water Tank",
 	"webDir": "dist",
 	"server": {
-		"androidScheme": "https",
+		"androidScheme": "http",
 		"hostname": "app.smartwatertank.local",
 		"cleartext": true,
 		"allowNavigation": [
@@ -30,7 +30,8 @@
 		"allowUniversalAccessFromFileURLs": true,
 		"allowFileAccessFromFileURLs": true,
 		"webContentsDebuggingEnabled": true,
-		"backgroundColor": "#ffffff"
+		"backgroundColor": "#ffffff",
+		"webSecurity": false
 	},
 	"plugins": {
 		"SplashScreen": {

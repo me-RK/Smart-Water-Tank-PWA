@@ -15,7 +15,7 @@ export class AndroidWebSocketManager {
   private reconnectAttempts = 0;
   private reconnectTimeout: NodeJS.Timeout | null = null;
   private isIntentionalClose = false;
-  private listeners: Map<string, Set<Function>> = new Map();
+  private listeners: Map<string, Set<(data: unknown) => void>> = new Map();
 
   constructor(config: WebSocketConfig) {
     this.config = {
@@ -130,7 +130,7 @@ export class AndroidWebSocketManager {
     }, delay);
   }
 
-  send(data: any): boolean {
+  send(data: unknown): boolean {
     if (this.ws?.readyState === WebSocket.OPEN) {
       try {
         const message = typeof data === 'string' ? data : JSON.stringify(data);
@@ -162,18 +162,18 @@ export class AndroidWebSocketManager {
     this.reconnectAttempts = 0;
   }
 
-  on(event: string, callback: Function): void {
+  on(event: string, callback: (data: unknown) => void): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
     this.listeners.get(event)!.add(callback);
   }
 
-  off(event: string, callback: Function): void {
+  off(event: string, callback: (data: unknown) => void): void {
     this.listeners.get(event)?.delete(callback);
   }
 
-  private emit(event: string, data: any): void {
+  private emit(event: string, data: unknown): void {
     this.listeners.get(event)?.forEach((callback) => {
       try {
         callback(data);

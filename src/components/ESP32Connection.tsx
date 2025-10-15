@@ -39,7 +39,7 @@ export const ESP32Connection: React.FC = () => {
     return () => {
       wsManager?.close();
     };
-  }, []);
+  }, [wsManager]);
 
   const handleConnect = async () => {
     try {
@@ -64,24 +64,27 @@ export const ESP32Connection: React.FC = () => {
         manager.send({ type: 'handshake', version: '3.0' });
       });
 
-      manager.on('close', (event: any) => {
+      manager.on('close', (data: unknown) => {
+        const event = data as { reason?: string };
         addLog(`Disconnected: ${event.reason || 'Unknown reason'}`);
         setConnectionStatus('disconnected');
       });
 
-      manager.on('error', (error: any) => {
-        addLog(`❌ Error: ${error}`);
+      manager.on('error', (data: unknown) => {
+        const error = data as Error | Event;
+        addLog(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       });
 
-      manager.on('message', (data: any) => {
-        addLog(`📩 Received: ${JSON.stringify(data)}`);
+      manager.on('message', (data: unknown) => {
+        const messageData = data as { type?: string; tankA?: number; tankB?: number; motorStatus?: boolean };
+        addLog(`📩 Received: ${JSON.stringify(messageData)}`);
         
         // Handle your ESP32 data format
-        if (data.type === 'status') {
+        if (messageData.type === 'status') {
           setEsp32Data({
-            tankA: data.tankA || 0,
-            tankB: data.tankB || 0,
-            motorStatus: data.motorStatus || false,
+            tankA: messageData.tankA || 0,
+            tankB: messageData.tankB || 0,
+            motorStatus: messageData.motorStatus || false,
             timestamp: Date.now(),
           });
         }
@@ -90,10 +93,11 @@ export const ESP32Connection: React.FC = () => {
       await manager.connect();
       setWsManager(manager);
 
-    } catch (error: any) {
-      addLog(`❌ Connection failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addLog(`❌ Connection failed: ${errorMessage}`);
       setConnectionStatus('disconnected');
-      alert(`Connection failed: ${error.message}\n\nMake sure:\n1. ESP32 is powered on\n2. Both devices on same WiFi\n3. IP address is correct`);
+      alert(`Connection failed: ${errorMessage}\n\nMake sure:\n1. ESP32 is powered on\n2. Both devices on same WiFi\n3. IP address is correct`);
     }
   };
 
@@ -104,7 +108,7 @@ export const ESP32Connection: React.FC = () => {
     setConnectionStatus('disconnected');
   };
 
-  const handleSendCommand = (command: any) => {
+  const handleSendCommand = (command: Record<string, unknown>) => {
     if (wsManager?.isConnected()) {
       const success = wsManager.send(command);
       if (success) {
@@ -132,8 +136,9 @@ export const ESP32Connection: React.FC = () => {
         addLog('❌ No devices found');
         alert('No ESP32 devices found.\n\nTry:\n1. Manual IP entry\n2. Full network scan\n3. Check ESP32 is on');
       }
-    } catch (error: any) {
-      addLog(`❌ Scan error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addLog(`❌ Scan error: ${errorMessage}`);
     } finally {
       setScanning(false);
     }
@@ -156,8 +161,9 @@ export const ESP32Connection: React.FC = () => {
       } else {
         addLog('❌ No devices found in network scan');
       }
-    } catch (error: any) {
-      addLog(`❌ Scan error: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      addLog(`❌ Scan error: ${errorMessage}`);
     } finally {
       setScanning(false);
     }

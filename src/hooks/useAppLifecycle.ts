@@ -6,7 +6,7 @@ export const useAppLifecycle = (
   onResume?: () => void
 ) => {
   useEffect(() => {
-    let pauseListener: any;
+    let pauseListener: { remove: () => void } | undefined;
 
     const setupListener = async () => {
       pauseListener = await App.addListener('appStateChange', ({ isActive }) => {

@@ -20,9 +20,11 @@ This document provides a complete solution for fixing Android app connectivity i
 
 ### 3. Capacitor Configuration
 - **File**: `capacitor.config.ts`
+- **CRITICAL**: `androidScheme: 'http'` (not 'https') to avoid mixed content issues
 - **Mixed Content**: Enabled for HTTP + HTTPS
 - **Navigation**: Allows all local IP ranges
 - **File Access**: Universal access from file URLs
+- **Web Security**: Disabled for local development
 - **Debugging**: Web contents debugging enabled
 
 ### 4. Gradle Build Configuration
@@ -232,6 +234,22 @@ npx cap sync android
 - Update `compileSdkVersion` to 35 in `android/variables.gradle`
 - Add `android.suppressUnsupportedCompileSdk=35` to `android/gradle.properties`
 - Use Java 17 toolchain configuration
+
+#### 6. "Mixed content" or HTTPS/HTTP scheme issues
+**Solution**:
+- **CRITICAL**: Set `androidScheme: 'http'` in `capacitor.config.ts` (not 'https')
+- Ensure `cleartext: true` in server configuration
+- Use simplified network security config that allows all cleartext traffic
+- Add `webSecurity: false` for development
+- Verify `android:usesCleartextTraffic="true"` in AndroidManifest.xml
+
+#### 7. TypeScript/ESLint linting issues
+**Solution**:
+- Replace `any` types with proper TypeScript types (`unknown`, specific interfaces)
+- Fix React hooks dependency warnings with `useCallback`
+- Use type assertions (`as`) for WebSocket event data
+- Update ESLint config to ignore Android build directories
+- Ensure all function parameters have explicit types
 
 ### Debug Information
 

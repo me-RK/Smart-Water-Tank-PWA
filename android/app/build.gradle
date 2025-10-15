@@ -57,6 +57,11 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
     }
+    
+    // Additional HTTP support
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 repositories {

@@ -1,0 +1,15 @@
+# Android build files
+android/app/build/
+android/build/
+android/.gradle/
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Generated files
+*.min.js
+*.bundle.js

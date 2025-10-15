@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   
   // ========== CRITICAL SERVER SETTINGS ==========
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',  // CRITICAL: Use HTTP as default to avoid mixed content issues
     hostname: 'app.smartwatertank.local',
     
     // ALLOW HTTP traffic (critical!)
@@ -56,6 +56,9 @@ const config: CapacitorConfig = {
     
     // Background color
     backgroundColor: '#ffffff',
+    
+    // Additional HTTP support settings
+    webSecurity: false,  // Disable web security for local development
     
     // Build configuration
     buildOptions: {
