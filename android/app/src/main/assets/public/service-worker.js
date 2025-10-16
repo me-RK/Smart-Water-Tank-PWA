@@ -1,5 +1,5 @@
 const CACHE_NAME = 'smart-water-tank-v1';
-const BASE_PATH = '/Smart-Water-Tank-PWA/';
+const BASE_PATH = '/';
 const urlsToCache = [
   BASE_PATH,
   BASE_PATH + 'index.html',

@@ -8,6 +8,7 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './components/NotificationSystem';
 import { PWANotificationSystem } from './components/PWANotificationSystem';
+import { ToastProvider } from './components/ToastProvider';
 import DeviceDiscovery from './components/DeviceDiscovery';
 import { ESP32Connection } from './components/ESP32Connection';
 import { AndroidPermissions } from './utils/androidPermissions';
@@ -185,9 +186,9 @@ function App() {
       // Hide splash screen after app loads
       SplashScreen.hide();
 
-      // Configure status bar
-      StatusBar.setStyle({ style: Style.Dark });
-      StatusBar.setBackgroundColor({ color: '#3b82f6' });
+      // Configure status bar with WhatsApp-style colors
+      StatusBar.setStyle({ style: Style.Light });
+      StatusBar.setBackgroundColor({ color: '#128c7e' });
 
       // Configure keyboard
       Keyboard.setResizeMode({ mode: KeyboardResize.Body });
@@ -213,13 +214,15 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <NotificationProvider>
-          <WebSocketProvider>
-            <Router basename={basename}>
-              <AppContent />
-            </Router>
-          </WebSocketProvider>
-        </NotificationProvider>
+        <ToastProvider>
+          <NotificationProvider>
+            <WebSocketProvider>
+              <Router basename={basename}>
+                <AppContent />
+              </Router>
+            </WebSocketProvider>
+          </NotificationProvider>
+        </ToastProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

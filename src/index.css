@@ -2,37 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Smart Water Tank PWA - Global Styles */
+/* Smart Water Tank PWA - WhatsApp-Style Global Styles */
 
 :root {
-  /* Light theme colors */
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-secondary: #64748b;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-background: #ffffff;
-  --color-surface: #f8fafc;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
-  --color-border: #e2e8f0;
+  /* WhatsApp Light Theme Colors */
+  --wa-teal-500: #128c7e;
+  --wa-teal-600: #0f766e;
+  --wa-light-bg: #f0f2f5;
+  --wa-light-panel: #ffffff;
+  --wa-light-panel-2: #f7f8fa;
+  --wa-light-border: #e9edef;
+  --wa-light-text: #111b21;
+  --wa-light-text-muted: #667781;
+  --wa-accent: #00a884;
+  
+  /* Legacy colors for backward compatibility */
+  --color-primary: #128c7e;
+  --color-primary-dark: #0f766e;
+  --color-secondary: #667781;
+  --color-success: #00a884;
+  --color-warning: #ffa726;
+  --color-error: #f44336;
+  --color-background: #f0f2f5;
+  --color-surface: #ffffff;
+  --color-text: #111b21;
+  --color-text-muted: #667781;
+  --color-border: #e9edef;
   --color-shadow: rgba(0, 0, 0, 0.1);
 }
 
-/* Dark theme colors */
+/* WhatsApp Dark Theme Colors */
 .dark {
-  --color-primary: #60a5fa;
-  --color-primary-dark: #3b82f6;
-  --color-secondary: #94a3b8;
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-error: #f87171;
-  --color-background: #0f172a;
-  --color-surface: #1e293b;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-border: #334155;
+  --wa-dark-bg: #111b21;
+  --wa-dark-panel: #202c33;
+  --wa-dark-panel-2: #2a3942;
+  --wa-dark-border: #3b4a54;
+  --wa-dark-text: #e9edef;
+  --wa-dark-text-muted: #8696a0;
+  --wa-accent: #00a884;
+  
+  /* Legacy dark theme colors */
+  --color-primary: #00a884;
+  --color-primary-dark: #128c7e;
+  --color-secondary: #8696a0;
+  --color-success: #00a884;
+  --color-warning: #ffa726;
+  --color-error: #f44336;
+  --color-background: #111b21;
+  --color-surface: #202c33;
+  --color-text: #e9edef;
+  --color-text-muted: #8696a0;
+  --color-border: #3b4a54;
   --color-shadow: rgba(0, 0, 0, 0.3);
 }
 
@@ -84,21 +104,35 @@ html {
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--wa-light-bg);
+  color: var(--wa-light-text);
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
   
-  /* Android-specific body optimizations */
+  /* WhatsApp-style smooth scrolling */
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  
+  /* Remove tap highlights for native feel */
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   
   /* Safe area support */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* Dark mode body */
+.dark body {
+  background-color: var(--wa-dark-bg);
+  color: var(--wa-dark-text);
 }
 
 /* Custom scrollbar */
@@ -831,4 +865,526 @@ select:focus-visible {
 .dark .android-skeleton {
   background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
   background-size: 200% 100%;
+}
+
+/* ========== WHATSAPP-STYLE COMPONENTS ========== */
+
+/* WhatsApp-style message bubbles */
+.wa-message-bubble {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+  animation: wa-slide-up 0.2s ease-out;
+}
+
+.wa-message-bubble.sent {
+  background: var(--wa-accent);
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.wa-message-bubble.received {
+  background: var(--wa-light-panel);
+  color: var(--wa-light-text);
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .wa-message-bubble.received {
+  background: var(--wa-dark-panel);
+  color: var(--wa-dark-text);
+}
+
+/* WhatsApp-style chat list items */
+.wa-chat-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--wa-light-border);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  min-height: 72px;
+}
+
+.wa-chat-item:hover {
+  background: var(--wa-light-panel-2);
+}
+
+.wa-chat-item:active {
+  background: var(--wa-light-border);
+}
+
+.dark .wa-chat-item {
+  border-bottom-color: var(--wa-dark-border);
+}
+
+.dark .wa-chat-item:hover {
+  background: var(--wa-dark-panel-2);
+}
+
+.dark .wa-chat-item:active {
+  background: var(--wa-dark-border);
+}
+
+/* WhatsApp-style avatar */
+.wa-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--wa-teal-500);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.wa-avatar.large {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+}
+
+.wa-avatar.small {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+/* WhatsApp-style status indicators */
+.wa-status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border: 2px solid white;
+}
+
+.wa-status-dot.online {
+  background: #00a884;
+}
+
+.wa-status-dot.offline {
+  background: #8696a0;
+}
+
+.wa-status-dot.away {
+  background: #ffa726;
+}
+
+/* WhatsApp-style bottom navigation */
+.wa-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--wa-light-panel);
+  border-top: 1px solid var(--wa-light-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 50;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .wa-bottom-nav {
+  background: var(--wa-dark-panel);
+  border-top-color: var(--wa-dark-border);
+}
+
+.wa-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 48px;
+  min-height: 48px;
+  justify-content: center;
+}
+
+.wa-bottom-nav-item:hover {
+  background: var(--wa-light-panel-2);
+}
+
+.wa-bottom-nav-item.active {
+  color: var(--wa-teal-500);
+}
+
+.wa-bottom-nav-item.active .wa-bottom-nav-icon {
+  transform: scale(1.1);
+}
+
+.dark .wa-bottom-nav-item:hover {
+  background: var(--wa-dark-panel-2);
+}
+
+.wa-bottom-nav-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+.wa-bottom-nav-label {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* WhatsApp-style header */
+.wa-header {
+  background: var(--wa-teal-500);
+  color: white;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wa-header-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.wa-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wa-header-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wa-header-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.wa-header-button:active {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* WhatsApp-style search bar */
+.wa-search-bar {
+  padding: 8px 16px;
+  background: var(--wa-light-panel);
+  border-bottom: 1px solid var(--wa-light-border);
+}
+
+.dark .wa-search-bar {
+  background: var(--wa-dark-panel);
+  border-bottom-color: var(--wa-dark-border);
+}
+
+.wa-search-input {
+  width: 100%;
+  background: var(--wa-light-panel-2);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px 8px 40px;
+  font-size: 14px;
+  color: var(--wa-light-text);
+  outline: none;
+  position: relative;
+}
+
+.wa-search-input::placeholder {
+  color: var(--wa-light-text-muted);
+}
+
+.dark .wa-search-input {
+  background: var(--wa-dark-panel-2);
+  color: var(--wa-dark-text);
+}
+
+.dark .wa-search-input::placeholder {
+  color: var(--wa-dark-text-muted);
+}
+
+.wa-search-icon {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--wa-light-text-muted);
+  width: 16px;
+  height: 16px;
+}
+
+.dark .wa-search-icon {
+  color: var(--wa-dark-text-muted);
+}
+
+/* WhatsApp-style loading animations */
+.wa-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.wa-typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--wa-light-text-muted);
+  animation: wa-typing 1.4s ease-in-out infinite;
+}
+
+.wa-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.wa-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.dark .wa-typing-dot {
+  background: var(--wa-dark-text-muted);
+}
+
+/* WhatsApp-style pull-to-refresh */
+.wa-pull-to-refresh {
+  position: relative;
+  overflow: hidden;
+}
+
+.wa-pull-indicator {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wa-light-text-muted);
+  font-size: 14px;
+  transition: top 0.3s ease;
+}
+
+.wa-pull-indicator.pulling {
+  top: 20px;
+}
+
+.wa-pull-indicator.refreshing {
+  top: 20px;
+  color: var(--wa-teal-500);
+}
+
+.dark .wa-pull-indicator {
+  color: var(--wa-dark-text-muted);
+}
+
+.dark .wa-pull-indicator.refreshing {
+  color: var(--wa-teal-500);
+}
+
+/* WhatsApp-style toast notifications */
+.wa-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--wa-dark-panel);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  animation: wa-slide-down 0.3s ease-out;
+  max-width: 90%;
+  text-align: center;
+}
+
+.wa-toast.success {
+  background: var(--wa-accent);
+}
+
+.wa-toast.error {
+  background: #f44336;
+}
+
+.wa-toast.warning {
+  background: #ffa726;
+}
+
+/* WhatsApp-style floating action button */
+.wa-fab {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  background: var(--wa-teal-500);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(18, 140, 126, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 40;
+}
+
+.wa-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(18, 140, 126, 0.4);
+}
+
+.wa-fab:active {
+  transform: scale(0.95);
+}
+
+/* WhatsApp-style page transitions */
+.wa-page-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.wa-page-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease-out;
+}
+
+.wa-page-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.wa-page-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: all 0.3s ease-out;
+}
+
+/* WhatsApp-style haptic feedback simulation */
+.wa-haptic-light {
+  animation: wa-bounce 0.1s ease-out;
+}
+
+.wa-haptic-medium {
+  animation: wa-bounce 0.15s ease-out;
+}
+
+.wa-haptic-heavy {
+  animation: wa-bounce 0.2s ease-out;
+}
+
+/* WhatsApp-style empty state */
+.wa-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--wa-light-text-muted);
+}
+
+.wa-empty-state-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.wa-empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--wa-light-text);
+}
+
+.wa-empty-state-description {
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.dark .wa-empty-state {
+  color: var(--wa-dark-text-muted);
+}
+
+.dark .wa-empty-state-title {
+  color: var(--wa-dark-text);
+}
+
+/* WhatsApp-style skeleton loading */
+.wa-skeleton {
+  background: linear-gradient(90deg, 
+    var(--wa-light-panel-2) 25%, 
+    var(--wa-light-border) 50%, 
+    var(--wa-light-panel-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.dark .wa-skeleton {
+  background: linear-gradient(90deg, 
+    var(--wa-dark-panel-2) 25%, 
+    var(--wa-dark-border) 50%, 
+    var(--wa-dark-panel-2) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.wa-skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.wa-skeleton-text:last-child {
+  margin-bottom: 0;
+  width: 60%;
+}
+
+.wa-skeleton-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.wa-skeleton-card {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--wa-light-panel);
+  border: 1px solid var(--wa-light-border);
+}
+
+.dark .wa-skeleton-card {
+  background: var(--wa-dark-panel);
+  border-color: var(--wa-dark-border);
 }

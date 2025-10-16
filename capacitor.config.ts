@@ -5,12 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Smart Water Tank',
   webDir: 'dist',
   
-  // ========== CRITICAL SERVER SETTINGS ==========
+  // ========== WHATSAPP-STYLE SERVER SETTINGS ==========
   server: {
-    androidScheme: 'http',  // CRITICAL: Use HTTP as default to avoid mixed content issues
+    androidScheme: 'http',  // Use HTTP for ESP32 compatibility
     hostname: 'app.smartwatertank.local',
     
-    // ALLOW HTTP traffic (critical!)
+    // ALLOW HTTP traffic for local development
     cleartext: true,
     
     // Allow navigation to local IPs
@@ -54,8 +54,8 @@ const config: CapacitorConfig = {
     // Enable debugging
     webContentsDebuggingEnabled: true,
     
-    // Background color
-    backgroundColor: '#ffffff',
+    // WhatsApp-style background color
+    backgroundColor: '#128c7e',
     
     // Additional HTTP support settings
     webSecurity: false,  // Disable web security for local development
@@ -74,7 +74,7 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
-      backgroundColor: '#3b82f6',
+      backgroundColor: '#128c7e', // WhatsApp teal
       showSpinner: false,
       androidSpinnerStyle: 'small',
       spinnerColor: '#ffffff',
@@ -83,8 +83,8 @@ const config: CapacitorConfig = {
     },
     
     StatusBar: {
-      style: 'DARK',
-      backgroundColor: '#3b82f6',
+      style: 'LIGHT', // Light content on dark background
+      backgroundColor: '#128c7e', // WhatsApp teal
       overlaysWebView: false,
     },
     
@@ -108,7 +108,7 @@ const config: CapacitorConfig = {
     
     LocalNotifications: {
       smallIcon: 'ic_stat_icon_config_sample',
-      iconColor: '#3b82f6',
+      iconColor: '#128c7e', // WhatsApp teal
     },
     
     // Network plugin configuration

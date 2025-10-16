@@ -3,44 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../context/useWebSocket';
 import { usePageData } from '../hooks/usePageData';
 import { StatusCard } from '../components/StatusCard';
-import { IndividualTankCard } from '../components/IndividualTankCard';
-import { ThemeToggle } from '../components/ThemeToggle';
-import { PWAInstallButton } from '../components/PWAInstallButton';
 import { MaterialButton } from '../components/MaterialButton';
 import { MaterialCard } from '../components/MaterialCard';
 import { MaterialBottomSheet } from '../components/MaterialBottomSheet';
 import { MaterialSnackbar } from '../components/MaterialSnackbar';
-import { Settings, Wifi, WifiOff, RefreshCw, Loader2, Menu } from 'lucide-react';
+import { BottomNavigation } from '../components/BottomNavigation';
+import { PullToRefresh } from '../components/PullToRefresh';
+import { useToast } from '../components/useToast';
+import { Settings, Wifi, WifiOff, RefreshCw, Loader2, Droplets, Activity, Zap } from 'lucide-react';
 
 /**
- * Enhanced Dashboard Component
+ * WhatsApp-Style Dashboard Component
  * 
- * Main dashboard interface for the Smart Water Tank PWA featuring:
- * - Real-time system status monitoring
- * - Tank level visualization with animated progress bars
- * - Motor control interface (Manual mode)
- * - Connection management with ESP32 device
- * - Auto-sync functionality with configurable intervals
- * - Responsive design with smooth animations
- * 
- * Key Features:
- * - Live data synchronization with ESP32
- * - Dynamic UI based on sensor configuration
- * - Enhanced animations and visual feedback
- * - Connection status indicators
- * - Motor control for manual operation
- * - Auto-mode status display
- * 
- * State Management:
- * - WebSocket connection state
- * - Auto-sync interval configuration
- * - Connection/reconnection status
- * - Manual data refresh capability
+ * Features:
+ * - WhatsApp-inspired header with teal background
+ * - Chat-list style tank cards with avatars
+ * - Pull-to-refresh functionality
+ * - Toast notifications for user feedback
+ * - Bottom navigation integration
+ * - Smooth animations and transitions
+ * - Haptic feedback for interactions
  */
+
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { appState, sendMessage, connect, disconnect, isConnected } = useWebSocket();
   const { startDashboardSync, stopDashboardSync } = usePageData();
+  const toast = useToast();
 
   // Debug logging for tank data and sensor states
   useEffect(() => {
@@ -48,9 +37,10 @@ export const Dashboard: React.FC = () => {
     console.log('Dashboard - Sensor States:', appState.systemSettings.sensors);
     console.log('Dashboard - System Status:', appState.systemStatus);
   }, [appState.tankData, appState.systemSettings.sensors, appState.systemStatus]);
+
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [reconnectionStatus, setReconnectionStatus] = useState<string>('');
+  const [, setReconnectionStatus] = useState<string>('');
   const [isAutoReconnecting, setIsAutoReconnecting] = useState(false);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [snackbar, setSnackbar] = useState<{
@@ -67,27 +57,50 @@ export const Dashboard: React.FC = () => {
 
   /**
    * Handles manual data synchronization with ESP32
-   * Sends a unified data request to get all system information
    */
   const handleSyncData = useCallback(async () => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      toast.showToast({
+        type: 'warning',
+        message: 'Not connected to device',
+      });
+      return;
+    }
     
     setIsRefreshing(true);
     
-    // Send unified data request - gets all necessary data in one call
-    sendMessage({
-      type: 'getAllData'
-    });
+    try {
+      // Send unified data request
+      sendMessage({
+        type: 'getAllData'
+      });
 
-    // Simulate refresh delay for better UX
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 1000);
-  }, [isConnected, sendMessage]);
+      toast.showToast({
+        type: 'success',
+        message: 'Data synced successfully',
+      });
+    } catch {
+      toast.showToast({
+        type: 'error',
+        message: 'Failed to sync data',
+      });
+    } finally {
+      // Simulate refresh delay for better UX
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 1000);
+    }
+  }, [isConnected, sendMessage, toast]);
+
+  /**
+   * Handle pull-to-refresh
+   */
+  const handlePullToRefresh = useCallback(async () => {
+    await handleSyncData();
+  }, [handleSyncData]);
 
   /**
    * Updates the auto-sync interval and persists to localStorage
-   * @param newInterval - New sync interval in milliseconds
    */
   const updateSyncInterval = useCallback((newInterval: number) => {
     setSyncInterval(newInterval);
@@ -111,8 +124,16 @@ export const Dashboard: React.FC = () => {
     setIsConnecting(true);
     try {
       await connect(lastHost);
+      toast.showToast({
+        type: 'success',
+        message: 'Connected to device',
+      });
     } catch (error) {
       console.error('Connection failed:', error);
+      toast.showToast({
+        type: 'error',
+        message: 'Failed to connect to device',
+      });
     } finally {
       setIsConnecting(false);
     }
@@ -120,20 +141,18 @@ export const Dashboard: React.FC = () => {
 
   const handleDisconnect = () => {
     disconnect();
+    toast.showToast({
+      type: 'info',
+      message: 'Disconnected from device',
+    });
   };
 
-
-
-  // Effect to manage auto-sync based on connection status and sync interval changes
-  // Note: This is now handled by usePageData hook, so we don't need to start/stop here
-  // The usePageData hook will handle page-specific data fetching
+  // Effect to manage auto-sync based on connection status
   useEffect(() => {
-    // Only stop dashboard sync when disconnected
     if (!isConnected) {
       stopDashboardSync();
     }
 
-    // Cleanup on unmount
     return () => {
       stopDashboardSync();
     };
@@ -153,7 +172,7 @@ export const Dashboard: React.FC = () => {
     };
   }, [updateSyncInterval]);
 
-  // Listen for reconnection status updates from ConnectionGuard
+  // Listen for reconnection status updates
   useEffect(() => {
     const handleReconnectionStatus = (event: CustomEvent) => {
       setReconnectionStatus(event.detail.status);
@@ -166,10 +185,8 @@ export const Dashboard: React.FC = () => {
     };
   }, []);
 
-
   /**
    * Handles motor toggle for manual control mode
-   * @param motorNumber - Motor number (1 or 2) to toggle
    */
   const handleMotorToggle = (motorNumber: 1 | 2) => {
     const currentMotorState = motorNumber === 1 ? appState.systemStatus.motor1Status : appState.systemStatus.motor2Status;
@@ -179,326 +196,398 @@ export const Dashboard: React.FC = () => {
     sendMessage({
       type: newMotorState ? `motor${motorNumber}On` : `motor${motorNumber}Off`
     });
+
+    toast.showToast({
+      type: 'success',
+      message: `Motor ${motorNumber} ${newMotorState ? 'started' : 'stopped'}`,
+    });
   };
 
+  /**
+   * Get tank avatar based on tank name and type
+   */
+  const getTankAvatar = (tankName: string, tankType: string) => {
+    const initials = tankName.charAt(0) + tankType.charAt(0).toUpperCase();
+    return initials;
+  };
 
-
+  /**
+   * Get tank status color
+   */
+  const getTankStatusColor = (level: number) => {
+    if (level >= 80) return 'text-green-500';
+    if (level >= 50) return 'text-yellow-500';
+    if (level >= 20) return 'text-orange-500';
+    return 'text-red-500';
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="android-app-bar">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">WT</span>
-              </div>
-              <h1 className="text-responsive-lg font-bold text-white">
-                Smart Water Tank
-              </h1>
-            </div>
-
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setShowBottomSheet(true)}
-                className="md:hidden p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-                aria-label="Menu"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-
-              {/* Connect/Disconnect Button */}
-              <MaterialButton
-                variant={isConnected ? 'secondary' : 'primary'}
-                size="small"
-                loading={isConnecting}
-                disabled={isAutoReconnecting}
-                onClick={isConnected ? handleDisconnect : handleConnect}
-                icon={isConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : 
-                      isAutoReconnecting ? <Wifi className="w-4 h-4 animate-pulse" /> :
-                      isConnected ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
-                className="hidden sm:flex"
-              >
-                {isConnecting ? 'Connecting...' : 
-                 isAutoReconnecting ? 'Reconnecting...' :
-                 isConnected ? 'Disconnect' : 'Connect'}
-              </MaterialButton>
-
-
-
-              {/* Theme Toggle */}
-              <ThemeToggle />
-
-              {/* PWA Install Button */}
-              <PWAInstallButton />
-
-              {/* Settings Button */}
-              <button
-                onClick={() => navigate('/settings')}
-                className="
-                  p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200
-                  hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors
-                "
-                title="System Settings"
-              >
-                <Settings className="w-5 h-5 transition-all duration-300 hover:scale-110 hover:rotate-12" />
-              </button>
-            </div>
+    <div className="min-h-screen bg-wa-light-bg dark:bg-wa-dark-bg">
+      {/* WhatsApp-Style Header */}
+      <header className="wa-header">
+        <div className="flex items-center gap-3">
+          <div className="wa-avatar">
+            <Droplets className="w-6 h-6" />
           </div>
+          <div>
+            <h1 className="wa-header-title">Smart Water Tank</h1>
+            <p className="text-sm opacity-90">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </p>
+          </div>
+        </div>
+
+        <div className="wa-header-actions">
+          {/* Connect/Disconnect Button */}
+          <button
+            onClick={isConnected ? handleDisconnect : handleConnect}
+            className="wa-header-button"
+            disabled={isConnecting || isAutoReconnecting}
+            title={isConnected ? 'Disconnect' : 'Connect'}
+          >
+            {isConnecting ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : isAutoReconnecting ? (
+              <Wifi className="w-5 h-5 animate-pulse" />
+            ) : isConnected ? (
+              <WifiOff className="w-5 h-5" />
+            ) : (
+              <Wifi className="w-5 h-5" />
+            )}
+          </button>
+
+          {/* Settings Button */}
+          <button
+            onClick={() => navigate('/settings')}
+            className="wa-header-button"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-          {/* Status Card */}
-          <MaterialCard elevation={2} className="animate-fade-in-up">
-            <StatusCard
-              connected={appState.systemStatus.connected}
-              lastUpdated={appState.systemStatus.lastUpdated}
-              runtime={appState.systemStatus.runtime}
-              motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
-              motor1Status={appState.systemStatus.motor1Status}
-              motor2Status={appState.systemStatus.motor2Status}
-              motor1Enabled={appState.systemStatus.motor1Enabled}
-              motor2Enabled={appState.systemStatus.motor2Enabled}
-              motorConfig={appState.systemStatus.motorConfig}
-              mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
-              autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
-              autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
-              autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
-            />
-          </MaterialCard>
+      {/* Main Content with Pull-to-Refresh */}
+      <PullToRefresh onRefresh={handlePullToRefresh} className="pb-20">
+        <main className="px-4 py-4">
+          {/* System Status Card */}
+          <div className="mb-4">
+            <MaterialCard elevation={2} className="animate-wa-slide-up">
+              <StatusCard
+                connected={appState.systemStatus.connected}
+                lastUpdated={appState.systemStatus.lastUpdated}
+                runtime={appState.systemStatus.runtime}
+                motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
+                motor1Status={appState.systemStatus.motor1Status}
+                motor2Status={appState.systemStatus.motor2Status}
+                motor1Enabled={appState.systemStatus.motor1Enabled}
+                motor2Enabled={appState.systemStatus.motor2Enabled}
+                motorConfig={appState.systemStatus.motorConfig}
+                mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
+                autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
+                autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
+                autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
+              />
+            </MaterialCard>
+          </div>
 
-          {/* Tank Monitoring */}
-          <MaterialCard elevation={2} className="animate-fade-in-up">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
-              <h2 className="text-responsive-xl font-semibold text-gray-800 dark:text-gray-200">
+          {/* Tank Monitoring Section */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
                 Tank Monitoring
               </h2>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-600 dark:text-gray-400">
-                    Auto-sync:
-                  </label>
-                  <select
-                    value={syncInterval}
-                    onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
-                    className="android-input text-sm"
-                  >
-                    <option value={0}>Off</option>
-                    <option value={2000}>2s</option>
-                    <option value={5000}>5s</option>
-                    <option value={10000}>10s</option>
-                    <option value={30000}>30s</option>
-                    <option value={60000}>1m</option>
-                  </select>
-                </div>
-                <MaterialButton
-                  variant="primary"
-                  size="small"
-                  loading={isRefreshing}
-                  disabled={!isConnected}
-                  onClick={handleSyncData}
-                  icon={<RefreshCw className="w-4 h-4" />}
+              <div className="flex items-center gap-2">
+                <select
+                  value={syncInterval}
+                  onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
+                  className="text-wa-sm bg-wa-light-panel dark:bg-wa-dark-panel border border-wa-light-border dark:border-wa-dark-border rounded-wa px-2 py-1"
                 >
-                  Sync Now
-                </MaterialButton>
+                  <option value={0}>Off</option>
+                  <option value={2000}>2s</option>
+                  <option value={5000}>5s</option>
+                  <option value={10000}>10s</option>
+                  <option value={30000}>30s</option>
+                  <option value={60000}>1m</option>
+                </select>
+                <button
+                  onClick={handleSyncData}
+                  disabled={!isConnected || isRefreshing}
+                  className="wa-header-button"
+                  title="Sync Now"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </button>
               </div>
             </div>
-          
-            {/* Individual Tank Cards - Only show active sensors */}
-            <div className="responsive-grid">
+
+            {/* Tank Cards - WhatsApp Chat Style */}
+            <div className="space-y-2">
               {/* Tank A Upper */}
               {appState.systemSettings.sensors.upperTankA && (
-                <IndividualTankCard
-                  tankName="Tank A"
-                  tankType="upper"
-                  level={appState.tankData.tankA.upper}
-                  isActive={appState.systemSettings.sensors.upperTankA}
-                />
+                <div className="wa-chat-item animate-wa-slide-up">
+                  <div className="relative">
+                    <div className="wa-avatar">
+                      {getTankAvatar('A', 'U')}
+                    </div>
+                    <div className={`wa-status-dot ${appState.tankData.tankA.upper > 20 ? 'online' : 'offline'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                        Tank A - Upper
+                      </h3>
+                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankA.upper)}`}>
+                        {appState.tankData.tankA.upper}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          appState.tankData.tankA.upper >= 80 ? 'bg-green-500' :
+                          appState.tankData.tankA.upper >= 50 ? 'bg-yellow-500' :
+                          appState.tankData.tankA.upper >= 20 ? 'bg-orange-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${appState.tankData.tankA.upper}%` }}
+                      />
+                    </div>
+                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                      {appState.tankData.tankA.upper >= 80 ? 'Excellent' :
+                       appState.tankData.tankA.upper >= 50 ? 'Good' :
+                       appState.tankData.tankA.upper >= 20 ? 'Low' : 'Critical'}
+                    </p>
+                  </div>
+                </div>
               )}
-              
+
               {/* Tank A Lower */}
               {appState.systemSettings.sensors.lowerTankA && (
-                <IndividualTankCard
-                  tankName="Tank A"
-                  tankType="lower"
-                  level={appState.tankData.tankA.lower}
-                  isActive={appState.systemSettings.sensors.lowerTankA}
-                />
+                <div className="wa-chat-item animate-wa-slide-up">
+                  <div className="relative">
+                    <div className="wa-avatar">
+                      {getTankAvatar('A', 'L')}
+                    </div>
+                    <div className={`wa-status-dot ${appState.tankData.tankA.lower > 20 ? 'online' : 'offline'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                        Tank A - Lower
+                      </h3>
+                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankA.lower)}`}>
+                        {appState.tankData.tankA.lower}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          appState.tankData.tankA.lower >= 80 ? 'bg-green-500' :
+                          appState.tankData.tankA.lower >= 50 ? 'bg-yellow-500' :
+                          appState.tankData.tankA.lower >= 20 ? 'bg-orange-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${appState.tankData.tankA.lower}%` }}
+                      />
+                    </div>
+                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                      {appState.tankData.tankA.lower >= 80 ? 'Excellent' :
+                       appState.tankData.tankA.lower >= 50 ? 'Good' :
+                       appState.tankData.tankA.lower >= 20 ? 'Low' : 'Critical'}
+                    </p>
+                  </div>
+                </div>
               )}
-              
+
               {/* Tank B Upper */}
               {appState.systemSettings.sensors.upperTankB && (
-                <IndividualTankCard
-                  tankName="Tank B"
-                  tankType="upper"
-                  level={appState.tankData.tankB.upper}
-                  isActive={appState.systemSettings.sensors.upperTankB}
-                />
+                <div className="wa-chat-item animate-wa-slide-up">
+                  <div className="relative">
+                    <div className="wa-avatar">
+                      {getTankAvatar('B', 'U')}
+                    </div>
+                    <div className={`wa-status-dot ${appState.tankData.tankB.upper > 20 ? 'online' : 'offline'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                        Tank B - Upper
+                      </h3>
+                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankB.upper)}`}>
+                        {appState.tankData.tankB.upper}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          appState.tankData.tankB.upper >= 80 ? 'bg-green-500' :
+                          appState.tankData.tankB.upper >= 50 ? 'bg-yellow-500' :
+                          appState.tankData.tankB.upper >= 20 ? 'bg-orange-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${appState.tankData.tankB.upper}%` }}
+                      />
+                    </div>
+                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                      {appState.tankData.tankB.upper >= 80 ? 'Excellent' :
+                       appState.tankData.tankB.upper >= 50 ? 'Good' :
+                       appState.tankData.tankB.upper >= 20 ? 'Low' : 'Critical'}
+                    </p>
+                  </div>
+                </div>
               )}
-              
+
               {/* Tank B Lower */}
               {appState.systemSettings.sensors.lowerTankB && (
-                <IndividualTankCard
-                  tankName="Tank B"
-                  tankType="lower"
-                  level={appState.tankData.tankB.lower}
-                  isActive={appState.systemSettings.sensors.lowerTankB}
-                />
+                <div className="wa-chat-item animate-wa-slide-up">
+                  <div className="relative">
+                    <div className="wa-avatar">
+                      {getTankAvatar('B', 'L')}
+                    </div>
+                    <div className={`wa-status-dot ${appState.tankData.tankB.lower > 20 ? 'online' : 'offline'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                        Tank B - Lower
+                      </h3>
+                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankB.lower)}`}>
+                        {appState.tankData.tankB.lower}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-500 ${
+                          appState.tankData.tankB.lower >= 80 ? 'bg-green-500' :
+                          appState.tankData.tankB.lower >= 50 ? 'bg-yellow-500' :
+                          appState.tankData.tankB.lower >= 20 ? 'bg-orange-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${appState.tankData.tankB.lower}%` }}
+                      />
+                    </div>
+                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                      {appState.tankData.tankB.lower >= 80 ? 'Excellent' :
+                       appState.tankData.tankB.lower >= 50 ? 'Good' :
+                       appState.tankData.tankB.lower >= 20 ? 'Low' : 'Critical'}
+                    </p>
+                  </div>
+                </div>
               )}
-            </div>
-          
-            {/* Show message if no tanks are enabled */}
-            {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
-               appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
-              <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center">
-                <div className="text-gray-500 dark:text-gray-400">
-                  <p className="text-sm font-medium mb-2">No Tank Sensors Enabled</p>
-                  <p className="text-xs">
+
+              {/* Show message if no tanks are enabled */}
+              {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
+                 appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
+                <div className="wa-empty-state">
+                  <Droplets className="wa-empty-state-icon" />
+                  <h3 className="wa-empty-state-title">No Tank Sensors Enabled</h3>
+                  <p className="wa-empty-state-description">
                     Enable tank sensors in Settings to monitor tank levels
                   </p>
                 </div>
-              </div>
-            )}
-          </MaterialCard>
-
-        {/* Debug Panel - Remove in production */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-2">Debug Info</h3>
-            <div className="text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
-              <div><strong>Sensor States:</strong> {JSON.stringify(appState.systemSettings.sensors)}</div>
-              <div><strong>Tank Data:</strong> {JSON.stringify(appState.tankData)}</div>
-              <div><strong>Connected:</strong> {appState.isConnected ? 'Yes' : 'No'}</div>
-              <div><strong>System Mode:</strong> {appState.systemStatus.mode}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Auto Mode Reason Display */}
-        {appState.systemStatus.mode === 'Auto Mode' && appState.systemStatus.autoModeReasons && appState.systemStatus.autoModeReasons !== 'NONE' && (
-          <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                Auto Mode Reason: {appState.systemStatus.autoModeReasons}
-              </span>
-            </div>
-          </div>
-        )}
-
-
-        {/* Motor Control */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Motor Control
-          </h3>
-          
-          {/* Motor Configuration Info */}
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-              Motor Configuration: {appState.systemStatus.motorConfig}
-            </h4>
-            <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-              <div>Motor 1: {appState.systemStatus.motor1Enabled ? 'Enabled' : 'Disabled'} - Status: {appState.systemStatus.motor1Status}</div>
-              <div>Motor 2: {appState.systemStatus.motor2Enabled ? 'Enabled' : 'Disabled'} - Status: {appState.systemStatus.motor2Status}</div>
+              )}
             </div>
           </div>
 
-          {/* Manual Mode Motor Control */}
+          {/* Motor Control Section */}
           {appState.systemStatus.mode === 'Manual Mode' && (
-            <div className="mb-6">
-              <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-4">
-                Manual Motor Control
-              </h4>
+            <div className="mb-4">
+              <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text mb-4">
+                Motor Control
+              </h2>
               
-              {/* Motor 1 Control */}
-              {appState.systemStatus.motor1Enabled && (
-                <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Motor 1 Control
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Status: {appState.systemStatus.motor1Status}
+              <div className="space-y-3">
+                {/* Motor 1 Control */}
+                {appState.systemStatus.motor1Enabled && (
+                  <div className="wa-chat-item">
+                    <div className="wa-avatar">
+                      <Zap className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                          Motor 1
+                        </h3>
+                        <span className={`text-wa-sm font-medium ${
+                          appState.systemStatus.motor1Status === 'ON' ? 'text-green-500' : 'text-gray-500'
+                        }`}>
+                          {appState.systemStatus.motor1Status}
+                        </span>
+                      </div>
+                      <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                        Manual control available
                       </p>
                     </div>
                     <button
                       onClick={() => handleMotorToggle(1)}
-                      className={`
-                        px-4 py-2 rounded-lg font-medium transition-colors text-sm
-                        ${appState.systemStatus.connected 
+                      disabled={!appState.systemStatus.connected}
+                      className={`px-4 py-2 rounded-wa font-medium text-wa-sm transition-colors ${
+                        appState.systemStatus.connected 
                           ? (appState.systemStatus.motor1Status === 'ON' 
                               ? 'bg-red-500 hover:bg-red-600 text-white' 
                               : 'bg-green-500 hover:bg-green-600 text-white')
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }
-                      `}
-                      disabled={!appState.systemStatus.connected}
+                      }`}
                     >
-                      {appState.systemStatus.motor1Status === 'ON' ? 'Turn OFF Motor 1' : 'Turn ON Motor 1'}
+                      {appState.systemStatus.motor1Status === 'ON' ? 'Stop' : 'Start'}
                     </button>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Motor 2 Control */}
-              {appState.systemStatus.motor2Enabled && (
-                <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Motor 2 Control
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Status: {appState.systemStatus.motor2Status}
+                {/* Motor 2 Control */}
+                {appState.systemStatus.motor2Enabled && (
+                  <div className="wa-chat-item">
+                    <div className="wa-avatar">
+                      <Zap className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
+                          Motor 2
+                        </h3>
+                        <span className={`text-wa-sm font-medium ${
+                          appState.systemStatus.motor2Status === 'ON' ? 'text-green-500' : 'text-gray-500'
+                        }`}>
+                          {appState.systemStatus.motor2Status}
+                        </span>
+                      </div>
+                      <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                        Manual control available
                       </p>
                     </div>
                     <button
                       onClick={() => handleMotorToggle(2)}
-                      className={`
-                        px-4 py-2 rounded-lg font-medium transition-colors text-sm
-                        ${appState.systemStatus.connected 
+                      disabled={!appState.systemStatus.connected}
+                      className={`px-4 py-2 rounded-wa font-medium text-wa-sm transition-colors ${
+                        appState.systemStatus.connected 
                           ? (appState.systemStatus.motor2Status === 'ON' 
                               ? 'bg-red-500 hover:bg-red-600 text-white' 
                               : 'bg-green-500 hover:bg-green-600 text-white')
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        }
-                      `}
-                      disabled={!appState.systemStatus.connected}
+                      }`}
                     >
-                      {appState.systemStatus.motor2Status === 'ON' ? 'Turn OFF Motor 2' : 'Turn ON Motor 2'}
+                      {appState.systemStatus.motor2Status === 'ON' ? 'Stop' : 'Start'}
                     </button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
-
           {/* Auto Mode Information */}
           {appState.systemStatus.mode === 'Auto Mode' && (
-            <div className="mb-6">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="mb-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-wa-lg p-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  <Activity className="w-5 h-5 text-blue-500" />
+                  <span className="text-wa-sm font-medium text-blue-700 dark:text-blue-300">
                     Auto Mode Active
                   </span>
                 </div>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mb-3">
+                <p className="text-wa-sm text-blue-600 dark:text-blue-400 mb-3">
                   Motors are automatically controlled based on tank levels and system settings.
                 </p>
                 
                 {/* Motor 1 Automation Reason */}
                 {appState.systemStatus.motor1Enabled && (
                   <div className="mb-2">
-                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                    <p className="text-wa-sm text-blue-600 dark:text-blue-400">
                       <strong>Motor 1:</strong> {appState.systemStatus.motor1Status} - {appState.systemStatus.autoModeReasonMotor1}
                     </p>
                   </div>
@@ -507,110 +596,19 @@ export const Dashboard: React.FC = () => {
                 {/* Motor 2 Automation Reason */}
                 {appState.systemStatus.motor2Enabled && (
                   <div className="mb-2">
-                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                    <p className="text-wa-sm text-blue-600 dark:text-blue-400">
                       <strong>Motor 2:</strong> {appState.systemStatus.motor2Status} - {appState.systemStatus.autoModeReasonMotor2}
                     </p>
                   </div>
                 )}
-                
-                {/* Legacy Motor Status */}
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  <strong>Overall Status:</strong> {appState.systemStatus.motorStatus}
-                </p>
               </div>
             </div>
           )}
+        </main>
+      </PullToRefresh>
 
-          {/* System Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* System Mode */}
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    System Mode
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    Current operation mode
-                  </p>
-                </div>
-                <div className={`
-                  px-3 py-1 rounded-md text-sm font-medium
-                  ${appState.systemStatus.mode === 'Auto Mode' 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' 
-                    : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-                  }
-                `}>
-                  {appState.systemStatus.mode}
-                </div>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-500">
-                {appState.systemStatus.mode === 'Auto Mode' 
-                  ? 'Automated control based on tank levels' 
-                  : 'Manual control required'
-                }
-              </div>
-            </div>
-
-            {/* Motor Status */}
-            <div className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Motor Status
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    Current motor state
-                  </p>
-                </div>
-                <div className={`
-                  px-3 py-1 rounded-md text-sm font-medium
-                  ${appState.systemStatus.motorStatus === 'ON' 
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' 
-                    : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
-                  }
-                `}>
-                  {appState.systemStatus.motorStatus}
-                </div>
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-500">
-                {appState.systemStatus.connected ? 'Connected to ESP32' : 'Disconnected'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-
-        {/* Error Display */}
-        {appState.error && (
-          <div className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span className="text-sm text-red-700 dark:text-red-300 font-medium">
-                Error: {appState.error}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Refresh Indicator */}
-        {isRefreshing && (
-          <div className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
-            <RefreshCw className="w-4 h-4 animate-spin" />
-            <span className="text-sm font-medium">Syncing data...</span>
-          </div>
-        )}
-
-        {/* Reconnection Status Indicator */}
-        {reconnectionStatus && (
-          <div className="fixed bottom-4 left-4 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center space-x-2">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-sm font-medium">{reconnectionStatus}</span>
-          </div>
-        )}
-        </div>
-      </main>
+      {/* Bottom Navigation */}
+      <BottomNavigation />
 
       {/* Mobile Bottom Sheet */}
       <MaterialBottomSheet
