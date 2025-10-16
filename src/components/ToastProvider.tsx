@@ -79,23 +79,23 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
         animation: isVisible ? 'wa-slide-down 0.3s ease-out' : 'wa-slide-up 0.3s ease-out',
       }}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
+      <div className="flex items-center gap-3">
+        <div className="flex-shrink-0">
           {getIcon()}
         </div>
         <div className="flex-1 min-w-0">
           {toast.title && (
-            <div className="font-semibold text-sm mb-1">
+            <div className="font-medium text-sm mb-0.5">
               {toast.title}
             </div>
           )}
-          <div className="text-sm">
+          <div className="text-sm opacity-90">
             {toast.message}
           </div>
           {toast.action && (
             <button
               onClick={toast.action.onClick}
-              className="mt-2 text-sm font-medium underline hover:no-underline"
+              className="mt-1 text-xs font-medium underline hover:no-underline opacity-80 hover:opacity-100"
             >
               {toast.action.label}
             </button>
@@ -103,10 +103,10 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onClose }) => {
         </div>
         <button
           onClick={handleClose}
-          className="flex-shrink-0 p-1 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors"
+          className="flex-shrink-0 p-1 rounded-full hover:bg-white hover:bg-opacity-10 transition-colors opacity-60 hover:opacity-100"
           aria-label="Close notification"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
@@ -125,7 +125,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onClose }) => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-2 max-w-sm w-full px-4">
+    <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onClose={onClose} />
       ))}
@@ -152,7 +152,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
     const id = Math.random().toString(36).substr(2, 9);
     const newToast: Toast = {
       id,
-      duration: 4000,
+      duration: 3000,
       ...toastData,
     };
 
