@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Activity, Settings, Wifi } from 'lucide-react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Capacitor } from '@capacitor/core';
+import { useWebSocket } from '../context/useWebSocket';
 
 /**
  * WhatsApp-Style Bottom Navigation Component
@@ -24,7 +25,7 @@ interface NavigationItem {
   badge?: number;
 }
 
-const navigationItems: NavigationItem[] = [
+const getNavigationItems = (isConnected: boolean): NavigationItem[] => [
   {
     id: 'dashboard',
     label: 'Home',
@@ -42,6 +43,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Devices',
     icon: Wifi,
     path: '/devices',
+    badge: isConnected ? undefined : 1, // Show badge when disconnected
   },
   {
     id: 'settings',
@@ -58,6 +60,7 @@ interface BottomNavigationProps {
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isConnected } = useWebSocket();
 
   /**
    * Handle navigation with haptic feedback
@@ -82,6 +85,8 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ className = 
   const isActive = (path: string): boolean => {
     return location.pathname === path;
   };
+
+  const navigationItems = getNavigationItems(isConnected);
 
   return (
     <nav className={`wa-bottom-nav ${className}`}>

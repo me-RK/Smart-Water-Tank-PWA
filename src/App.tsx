@@ -1,15 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense, lazy, useContext, useState, useEffect } from 'react';
+import { Suspense, lazy, useContext, useEffect } from 'react';
 import { WebSocketProvider, WebSocketContext } from './context/WebSocketContext';
 import { ThemeProvider } from './context/ThemeContext';
-import { ConnectionGuard } from './components/ConnectionGuard';
-import { DataLoader } from './components/DataLoader';
+import { SimpleConnectionGuard } from './components/SimpleConnectionGuard';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './components/NotificationSystem';
 import { PWANotificationSystem } from './components/PWANotificationSystem';
 import { ToastProvider } from './components/ToastProvider';
-import DeviceDiscovery from './components/DeviceDiscovery';
 import { AndroidPermissions } from './utils/androidPermissions';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -50,7 +48,6 @@ const Settings = lazy(() => import('./pages/Settings').then(module => ({ default
  */
 const AppContent: React.FC = () => {
   const wsContext = useContext(WebSocketContext);
-  const [showDiscovery, setShowDiscovery] = useState(!wsContext?.deviceIP);
   const { isOnline } = useNetworkStatus();
 
   // Initialize Android permissions
@@ -65,17 +62,27 @@ const AppContent: React.FC = () => {
     initializePermissions();
   }, []);
 
-
-  if (!wsContext?.isConnected && showDiscovery) {
-    return <DeviceDiscovery onConnect={() => setShowDiscovery(false)} />;
-  }
-
   return (
     <div className="App">
       {/* Offline Banner */}
       {!isOnline && (
         <div className="bg-red-500 text-white text-center py-2 px-4">
           <span className="text-sm font-medium">No internet connection</span>
+        </div>
+      )}
+
+      {/* Device Disconnected Banner */}
+      {wsContext && !wsContext.isConnected && (
+        <div className="bg-orange-500 text-white text-center py-2 px-4">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-sm font-medium">Device Disconnected</span>
+            <button
+              onClick={() => window.location.href = '/devices'}
+              className="text-sm underline hover:no-underline"
+            >
+              Connect Now
+            </button>
+          </div>
         </div>
       )}
 
@@ -93,18 +100,16 @@ const AppContent: React.FC = () => {
       )}
 
       {/* Main App Content */}
-      <ConnectionGuard>
-        <DataLoader>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/devices" element={<Devices />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </Suspense>
-        </DataLoader>
-      </ConnectionGuard>
+      <SimpleConnectionGuard>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/devices" element={<Devices />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </Suspense>
+      </SimpleConnectionGuard>
       <PWANotificationSystem />
     </div>
   );

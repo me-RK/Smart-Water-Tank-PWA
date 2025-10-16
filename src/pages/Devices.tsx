@@ -14,9 +14,11 @@ import {
   Zap,
   CheckCircle,
   XCircle,
-  AlertTriangle
+  AlertTriangle,
+  Search
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
+import { discoverEsp32Devices, testConnection } from '../utils/connectionTest';
 
 /**
  * Devices Page - WhatsApp-Style Device Management
@@ -42,6 +44,10 @@ export const Devices: React.FC = () => {
   const toast = useToast();
 
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [discoveredDevices, setDiscoveredDevices] = useState<string[]>([]);
+  const [manualIP, setManualIP] = useState('');
+  const [showDeviceList, setShowDeviceList] = useState(false);
 
   /**
    * Handle device connection
@@ -92,6 +98,95 @@ export const Devices: React.FC = () => {
   };
 
   /**
+   * Scan for ESP32 devices on the network
+   */
+  const handleScanForDevices = async () => {
+    setIsScanning(true);
+    setDiscoveredDevices([]);
+    setShowDeviceList(false);
+    
+    try {
+      toast.showToast({
+        type: 'info',
+        message: 'Scanning for ESP32 devices...',
+      });
+      
+      const devices = await discoverEsp32Devices();
+      setDiscoveredDevices(devices);
+      
+      if (devices.length > 0) {
+        setShowDeviceList(true);
+        toast.showToast({
+          type: 'success',
+          message: `Found ${devices.length} ESP32 device(s)`,
+        });
+      } else {
+        toast.showToast({
+          type: 'warning',
+          message: 'No ESP32 devices found on network',
+        });
+      }
+    } catch {
+      toast.showToast({
+        type: 'error',
+        message: 'Failed to scan for devices',
+      });
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  /**
+   * Connect to a specific device
+   */
+  const handleConnectToDevice = async (deviceIP: string) => {
+    setIsConnecting(true);
+    try {
+      connect(deviceIP);
+      toast.showToast({
+        type: 'success',
+        message: `Connecting to ${deviceIP}`,
+      });
+      setShowDeviceList(false);
+    } catch {
+      toast.showToast({
+        type: 'error',
+        message: 'Failed to connect to device',
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  /**
+   * Test connection to a specific IP
+   */
+  const handleTestConnection = async (ip: string) => {
+    try {
+      const result = await testConnection(ip, 81);
+      if (result.success) {
+        toast.showToast({
+          type: 'success',
+          message: `Connection test successful for ${ip}`,
+        });
+        return true;
+      } else {
+        toast.showToast({
+          type: 'error',
+          message: `Connection test failed for ${ip}`,
+        });
+        return false;
+      }
+    } catch {
+      toast.showToast({
+        type: 'error',
+        message: `Connection test failed for ${ip}`,
+      });
+      return false;
+    }
+  };
+
+  /**
    * Get connection status color
    */
   const getConnectionStatusColor = () => {
@@ -136,7 +231,7 @@ export const Devices: React.FC = () => {
           <div>
             <h1 className="wa-header-title">Devices</h1>
             <p className="text-sm opacity-90">
-              Manage your connections
+              {isConnected ? 'Connected' : 'Disconnected'} • Manage connections
             </p>
           </div>
         </div>
@@ -220,17 +315,109 @@ export const Devices: React.FC = () => {
               )}
 
               <button
-                onClick={() => {
-                  // Navigate to device discovery or show modal
-                  toast.showToast({
-                    type: 'info',
-                    message: 'Device discovery feature coming soon',
-                  });
-                }}
-                className="px-4 py-2 border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors"
+                onClick={handleScanForDevices}
+                disabled={isScanning}
+                className="px-4 py-2 border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors disabled:opacity-50 flex items-center gap-2"
               >
-                Change Device
+                {isScanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Scanning...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4" />
+                    Scan for Devices
+                  </>
+                )}
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Discovered Devices */}
+        {showDeviceList && discoveredDevices.length > 0 && (
+          <div className="mb-6">
+            <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg p-4 shadow-wa">
+              <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text mb-3">
+                Discovered ESP32 Devices
+              </h3>
+              <div className="space-y-2">
+                {discoveredDevices.map((deviceIP) => (
+                  <div
+                    key={deviceIP}
+                    className="flex items-center justify-between p-3 bg-wa-light-bg dark:bg-wa-dark-bg rounded-wa border border-wa-light-border dark:border-wa-dark-border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-wa-teal-500 rounded-full flex items-center justify-center">
+                        <Wifi className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-wa-sm font-medium text-wa-light-text dark:text-wa-dark-text">
+                          ESP32 Water Tank Controller
+                        </div>
+                        <div className="text-xs text-wa-light-text dark:text-wa-dark-text opacity-75">
+                          {deviceIP}:81
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleTestConnection(deviceIP)}
+                        className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-wa transition-colors"
+                      >
+                        Test
+                      </button>
+                      <button
+                        onClick={() => handleConnectToDevice(deviceIP)}
+                        disabled={isConnecting}
+                        className="px-3 py-1 text-xs bg-wa-teal-500 hover:bg-wa-teal-600 text-white rounded-wa transition-colors disabled:opacity-50"
+                      >
+                        Connect
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manual IP Input */}
+        <div className="mb-6">
+          <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg p-4 shadow-wa">
+            <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text mb-3">
+              Manual Connection
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-wa-sm font-medium text-wa-light-text dark:text-wa-dark-text mb-2">
+                  ESP32 IP Address
+                </label>
+                <input
+                  type="text"
+                  value={manualIP}
+                  onChange={(e) => setManualIP(e.target.value)}
+                  placeholder="192.168.1.100"
+                  className="w-full px-3 py-2 bg-wa-light-bg dark:bg-wa-dark-bg border border-wa-light-border dark:border-wa-dark-border rounded-wa text-wa-light-text dark:text-wa-dark-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-wa-teal-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleTestConnection(manualIP)}
+                  disabled={!manualIP.trim()}
+                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-wa font-medium transition-colors"
+                >
+                  Test Connection
+                </button>
+                <button
+                  onClick={() => handleConnectToDevice(manualIP)}
+                  disabled={!manualIP.trim() || isConnecting}
+                  className="flex-1 px-4 py-2 bg-wa-teal-500 hover:bg-wa-teal-600 disabled:bg-gray-400 text-white rounded-wa font-medium transition-colors"
+                >
+                  Connect
+                </button>
+              </div>
             </div>
           </div>
         </div>

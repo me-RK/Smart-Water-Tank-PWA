@@ -68,9 +68,9 @@ export const Dashboard: React.FC = () => {
     
     try {
       // Send unified data request
-      sendMessage({
-        type: 'getAllData'
-      });
+    sendMessage({
+      type: 'getAllData'
+    });
 
       toast.showToast({
         type: 'success',
@@ -82,10 +82,10 @@ export const Dashboard: React.FC = () => {
         message: 'Failed to sync data',
       });
     } finally {
-      // Simulate refresh delay for better UX
-      setTimeout(() => {
-        setIsRefreshing(false);
-      }, 1000);
+    // Simulate refresh delay for better UX
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1000);
     }
   }, [isConnected, sendMessage, toast]);
 
@@ -183,29 +183,29 @@ export const Dashboard: React.FC = () => {
           <div>
             <h1 className="wa-header-title">Smart Water Tank</h1>
             <p className="text-sm opacity-90">
-              Tank Monitoring Dashboard
+              {isConnected ? 'Connected' : 'Disconnected'} • Tank Monitoring
             </p>
-          </div>
-        </div>
+              </div>
+            </div>
 
         <div className="wa-header-actions">
           {/* Devices Button */}
-          <button
+              <button
             onClick={() => navigate('/devices')}
             className="wa-header-button"
             title="Device Management"
           >
             <Wifi className="w-5 h-5" />
-          </button>
+              </button>
 
-          {/* Settings Button */}
-          <button
-            onClick={() => navigate('/settings')}
+              {/* Settings Button */}
+              <button
+                onClick={() => navigate('/settings')}
             className="wa-header-button"
             title="Settings"
           >
             <Settings className="w-5 h-5" />
-          </button>
+              </button>
         </div>
       </header>
 
@@ -215,22 +215,22 @@ export const Dashboard: React.FC = () => {
           {/* System Status Card */}
           <div className="mb-4">
             <MaterialCard elevation={2} className="animate-wa-slide-up">
-              <StatusCard
-                connected={appState.systemStatus.connected}
-                lastUpdated={appState.systemStatus.lastUpdated}
-                runtime={appState.systemStatus.runtime}
-                motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
-                motor1Status={appState.systemStatus.motor1Status}
-                motor2Status={appState.systemStatus.motor2Status}
-                motor1Enabled={appState.systemStatus.motor1Enabled}
-                motor2Enabled={appState.systemStatus.motor2Enabled}
-                motorConfig={appState.systemStatus.motorConfig}
-                mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
-                autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
-                autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
-                autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
-              />
-            </MaterialCard>
+            <StatusCard
+              connected={appState.systemStatus.connected}
+              lastUpdated={appState.systemStatus.lastUpdated}
+              runtime={appState.systemStatus.runtime}
+              motorStatus={appState.systemStatus.motorStatus === 'ON' ? 'ON' : 'OFF'}
+              motor1Status={appState.systemStatus.motor1Status}
+              motor2Status={appState.systemStatus.motor2Status}
+              motor1Enabled={appState.systemStatus.motor1Enabled}
+              motor2Enabled={appState.systemStatus.motor2Enabled}
+              motorConfig={appState.systemStatus.motorConfig}
+              mode={appState.systemStatus.mode === 'Auto Mode' ? 'auto' : 'manual'}
+              autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
+              autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
+              autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
+            />
+          </MaterialCard>
           </div>
 
           {/* Tank Monitoring Section */}
@@ -240,18 +240,18 @@ export const Dashboard: React.FC = () => {
                 Tank Monitoring
               </h2>
               <div className="flex items-center gap-2">
-                <select
-                  value={syncInterval}
-                  onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
+                  <select
+                    value={syncInterval}
+                    onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
                   className="text-wa-sm bg-wa-light-panel dark:bg-wa-dark-panel border border-wa-light-border dark:border-wa-dark-border rounded-wa px-2 py-1"
-                >
-                  <option value={0}>Off</option>
-                  <option value={2000}>2s</option>
-                  <option value={5000}>5s</option>
-                  <option value={10000}>10s</option>
-                  <option value={30000}>30s</option>
-                  <option value={60000}>1m</option>
-                </select>
+                  >
+                    <option value={0}>Off</option>
+                    <option value={2000}>2s</option>
+                    <option value={5000}>5s</option>
+                    <option value={10000}>10s</option>
+                    <option value={30000}>30s</option>
+                    <option value={60000}>1m</option>
+                  </select>
                 <button
                   onClick={handleSyncData}
                   disabled={!isConnected || isRefreshing}
@@ -262,7 +262,7 @@ export const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-
+          
             {/* Tank Cards - WhatsApp Chat Style */}
             <div className="space-y-2">
               {/* Tank A Upper */}
@@ -301,7 +301,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-
+              
               {/* Tank A Lower */}
               {appState.systemSettings.sensors.lowerTankA && (
                 <div className="wa-chat-item animate-wa-slide-up">
@@ -338,7 +338,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-
+              
               {/* Tank B Upper */}
               {appState.systemSettings.sensors.upperTankB && (
                 <div className="wa-chat-item animate-wa-slide-up">
@@ -375,7 +375,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-
+              
               {/* Tank B Lower */}
               {appState.systemSettings.sensors.lowerTankB && (
                 <div className="wa-chat-item animate-wa-slide-up">
@@ -412,18 +412,18 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-
-              {/* Show message if no tanks are enabled */}
-              {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
-                 appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
+          
+            {/* Show message if no tanks are enabled */}
+            {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
+               appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
                 <div className="wa-empty-state">
                   <Droplets className="wa-empty-state-icon" />
                   <h3 className="wa-empty-state-title">No Tank Sensors Enabled</h3>
                   <p className="wa-empty-state-description">
                     Enable tank sensors in Settings to monitor tank levels
                   </p>
-                </div>
-              )}
+          </div>
+        )}
             </div>
           </div>
 
@@ -435,8 +435,8 @@ export const Dashboard: React.FC = () => {
               </h2>
               
               <div className="space-y-3">
-                {/* Motor 1 Control */}
-                {appState.systemStatus.motor1Enabled && (
+              {/* Motor 1 Control */}
+              {appState.systemStatus.motor1Enabled && (
                   <div className="wa-chat-item">
                     <div className="wa-avatar">
                       <Zap className="w-5 h-5" />
@@ -469,11 +469,11 @@ export const Dashboard: React.FC = () => {
                     >
                       {appState.systemStatus.motor1Status === 'ON' ? 'Stop' : 'Start'}
                     </button>
-                  </div>
-                )}
+                </div>
+              )}
 
-                {/* Motor 2 Control */}
-                {appState.systemStatus.motor2Enabled && (
+              {/* Motor 2 Control */}
+              {appState.systemStatus.motor2Enabled && (
                   <div className="wa-chat-item">
                     <div className="wa-avatar">
                       <Zap className="w-5 h-5" />
@@ -508,7 +508,7 @@ export const Dashboard: React.FC = () => {
                     </button>
                   </div>
                 )}
-              </div>
+                </div>
             </div>
           )}
 
