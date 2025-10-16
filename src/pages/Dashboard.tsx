@@ -10,7 +10,7 @@ import { MaterialSnackbar } from '../components/MaterialSnackbar';
 import { BottomNavigation } from '../components/BottomNavigation';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { useToast } from '../components/useToast';
-import { Settings, Wifi, WifiOff, RefreshCw, Loader2, Droplets, Activity, Zap } from 'lucide-react';
+import { Settings, Wifi, RefreshCw, Droplets, Activity, Zap } from 'lucide-react';
 
 /**
  * WhatsApp-Style Dashboard Component
@@ -27,7 +27,7 @@ import { Settings, Wifi, WifiOff, RefreshCw, Loader2, Droplets, Activity, Zap } 
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { appState, sendMessage, connect, disconnect, isConnected } = useWebSocket();
+  const { appState, sendMessage, isConnected } = useWebSocket();
   const { startDashboardSync, stopDashboardSync } = usePageData();
   const toast = useToast();
 
@@ -39,9 +39,6 @@ export const Dashboard: React.FC = () => {
   }, [appState.tankData, appState.systemSettings.sensors, appState.systemStatus]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [, setReconnectionStatus] = useState<string>('');
-  const [isAutoReconnecting, setIsAutoReconnecting] = useState(false);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     isOpen: boolean;
@@ -112,40 +109,6 @@ export const Dashboard: React.FC = () => {
     }
   }, [isConnected, startDashboardSync]);
 
-  // Connection handling functions
-  const handleConnect = async () => {
-    const lastHost = localStorage.getItem('tankHost');
-    if (!lastHost) {
-      // Trigger connection modal through ConnectionGuard
-      window.dispatchEvent(new CustomEvent('openConnectionModal'));
-      return;
-    }
-
-    setIsConnecting(true);
-    try {
-      await connect(lastHost);
-      toast.showToast({
-        type: 'success',
-        message: 'Connected to device',
-      });
-    } catch (error) {
-      console.error('Connection failed:', error);
-      toast.showToast({
-        type: 'error',
-        message: 'Failed to connect to device',
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const handleDisconnect = () => {
-    disconnect();
-    toast.showToast({
-      type: 'info',
-      message: 'Disconnected from device',
-    });
-  };
 
   // Effect to manage auto-sync based on connection status
   useEffect(() => {
@@ -172,18 +135,6 @@ export const Dashboard: React.FC = () => {
     };
   }, [updateSyncInterval]);
 
-  // Listen for reconnection status updates
-  useEffect(() => {
-    const handleReconnectionStatus = (event: CustomEvent) => {
-      setReconnectionStatus(event.detail.status);
-      setIsAutoReconnecting(event.detail.status !== '');
-    };
-
-    window.addEventListener('reconnectionStatus', handleReconnectionStatus as EventListener);
-    return () => {
-      window.removeEventListener('reconnectionStatus', handleReconnectionStatus as EventListener);
-    };
-  }, []);
 
   /**
    * Handles motor toggle for manual control mode
@@ -232,28 +183,19 @@ export const Dashboard: React.FC = () => {
           <div>
             <h1 className="wa-header-title">Smart Water Tank</h1>
             <p className="text-sm opacity-90">
-              {isConnected ? 'Connected' : 'Disconnected'}
+              Tank Monitoring Dashboard
             </p>
           </div>
         </div>
 
         <div className="wa-header-actions">
-          {/* Connect/Disconnect Button */}
+          {/* Devices Button */}
           <button
-            onClick={isConnected ? handleDisconnect : handleConnect}
+            onClick={() => navigate('/devices')}
             className="wa-header-button"
-            disabled={isConnecting || isAutoReconnecting}
-            title={isConnected ? 'Disconnect' : 'Connect'}
+            title="Device Management"
           >
-            {isConnecting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : isAutoReconnecting ? (
-              <Wifi className="w-5 h-5 animate-pulse" />
-            ) : isConnected ? (
-              <WifiOff className="w-5 h-5" />
-            ) : (
-              <Wifi className="w-5 h-5" />
-            )}
+            <Wifi className="w-5 h-5" />
           </button>
 
           {/* Settings Button */}
@@ -622,15 +564,11 @@ export const Dashboard: React.FC = () => {
             fullWidth
             onClick={() => {
               setShowBottomSheet(false);
-              if (isConnected) {
-                handleDisconnect();
-              } else {
-                handleConnect();
-              }
+              navigate('/devices');
             }}
-            icon={isConnected ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+            icon={<Wifi className="w-4 h-4" />}
           >
-            {isConnected ? 'Disconnect' : 'Connect'}
+            Manage Devices
           </MaterialButton>
           
           <MaterialButton

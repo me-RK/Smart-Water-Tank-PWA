@@ -9,6 +9,10 @@ interface WebSocketContextType {
   disconnect: () => void;
   isConnected: boolean;
   error: string | null;
+  isReconnecting: boolean;
+  lastError: string | null;
+  deviceIP: string | null;
+  setDeviceIP: (ip: string) => void;
 }
 
 // Custom hook to use WebSocket context

@@ -10,7 +10,6 @@ import { NotificationProvider } from './components/NotificationSystem';
 import { PWANotificationSystem } from './components/PWANotificationSystem';
 import { ToastProvider } from './components/ToastProvider';
 import DeviceDiscovery from './components/DeviceDiscovery';
-import { ESP32Connection } from './components/ESP32Connection';
 import { AndroidPermissions } from './utils/androidPermissions';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -40,6 +39,7 @@ import './App.css';
 
 // Lazy load pages for better performance and code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })));
+const Devices = lazy(() => import('./pages/Devices').then(module => ({ default: module.Devices })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 
 /**
@@ -51,8 +51,6 @@ const Settings = lazy(() => import('./pages/Settings').then(module => ({ default
 const AppContent: React.FC = () => {
   const wsContext = useContext(WebSocketContext);
   const [showDiscovery, setShowDiscovery] = useState(!wsContext?.deviceIP);
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
-  const [showESP32Connection, setShowESP32Connection] = useState(false);
   const { isOnline } = useNetworkStatus();
 
   // Initialize Android permissions
@@ -60,20 +58,13 @@ const AppContent: React.FC = () => {
     const initializePermissions = async () => {
       if (Capacitor.getPlatform() === 'android') {
         const granted = await AndroidPermissions.requestAllPermissions();
-        setPermissionsGranted(granted);
         console.log('Android permissions granted:', granted);
-      } else {
-        setPermissionsGranted(true);
       }
     };
 
     initializePermissions();
   }, []);
 
-  // Show ESP32 connection component for Android
-  if (Capacitor.getPlatform() === 'android' && showESP32Connection) {
-    return <ESP32Connection />;
-  }
 
   if (!wsContext?.isConnected && showDiscovery) {
     return <DeviceDiscovery onConnect={() => setShowDiscovery(false)} />;
@@ -81,59 +72,11 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="App">
-      {/* Debug Info for Android */}
-      {Capacitor.getPlatform() === 'android' && (
-        <div className="bg-gray-100 text-gray-800 text-center py-1 px-4 text-xs">
-          <span>Platform: {Capacitor.getPlatform()} | Native: {Capacitor.isNativePlatform() ? 'Yes' : 'No'} | Permissions: {permissionsGranted ? 'Granted' : 'Pending'}</span>
-        </div>
-      )}
-
       {/* Offline Banner */}
       {!isOnline && (
         <div className="bg-red-500 text-white text-center py-2 px-4">
           <span className="text-sm font-medium">No internet connection</span>
         </div>
-      )}
-
-      {/* Connection Status Header */}
-      {wsContext?.deviceIP && (
-        <header className="bg-white shadow-sm border-b border-gray-200 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">
-              Smart Water Tank Manager
-            </h1>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  wsContext.isConnected 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {wsContext.isConnected ? '✓ Connected' : '✗ Disconnected'}
-                </span>
-                {wsContext.isReconnecting && (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                    Reconnecting...
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => setShowDiscovery(true)}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Change Device
-              </button>
-              {Capacitor.getPlatform() === 'android' && (
-                <button
-                  onClick={() => setShowESP32Connection(true)}
-                  className="text-sm text-green-600 hover:text-green-800 font-medium"
-                >
-                  ESP32 Manager
-                </button>
-              )}
-            </div>
-          </div>
-        </header>
       )}
 
       {/* Error Banner */}
@@ -156,6 +99,7 @@ const AppContent: React.FC = () => {
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/devices" element={<Devices />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>
           </Suspense>
