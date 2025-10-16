@@ -317,7 +317,7 @@ export const Devices: React.FC = () => {
           <div>
             <h1 className="wa-header-title">Devices</h1>
             <p className="text-sm opacity-90">
-              {isConnected ? 'Connected' : 'Disconnected'} • Manage connections
+              {isConnected ? 'Connected' : 'Disconnected'} • by EmptyIdea
             </p>
           </div>
         </div>

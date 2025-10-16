@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.smartwatertank.app',
+  appId: 'com.EmptyIdea.smartwatertank',
   appName: 'Smart Water Tank',
   webDir: 'dist',
   

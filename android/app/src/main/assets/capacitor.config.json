@@ -1,5 +1,5 @@
 {
-	"appId": "com.smartwatertank.app",
+	"appId": "com.EmptyIdea.smartwatertank",
 	"appName": "Smart Water Tank",
 	"webDir": "dist",
 	"server": {

@@ -258,7 +258,7 @@ export const Settings: React.FC = () => {
                   Smart Water Tank
                 </h2>
                 <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                  {configDetails.description}
+                  by EmptyIdea • {configDetails.description}
                 </p>
                 <div className="flex items-center gap-4 mt-2">
                   <span className="text-wa-xs text-wa-light-text-muted dark:text-wa-dark-text-muted">
@@ -685,7 +685,7 @@ export const Settings: React.FC = () => {
                   App Version
                 </h4>
                 <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                  Smart Water Tank v2.0
+                  Smart Water Tank v2.0 by EmptyIdea
                 </p>
               </div>
               <span className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">

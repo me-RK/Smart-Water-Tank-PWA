@@ -1,7 +1,7 @@
 {
-  "name": "Smart Water Tank Manager",
-  "short_name": "Water Tank",
-  "description": "Real-time monitoring and control of smart water tank systems",
+  "name": "Smart Water Tank",
+  "short_name": "Smart Water Tank",
+  "description": "Smart Water Tank by EmptyIdea - Real-time monitoring and control of smart water tank systems",
   "start_url": "/Smart-Water-Tank-PWA/",
   "scope": "/Smart-Water-Tank-PWA/",
   "display": "standalone",
