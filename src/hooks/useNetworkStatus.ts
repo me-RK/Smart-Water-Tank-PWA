@@ -17,7 +17,7 @@ export const useNetworkStatus = () => {
 
       checkStatus();
 
-      listener = await Network.addListener('networkStatusChange', (status) => {
+      listener = await Network.addListener('networkStatusChange', (status: any) => {
         console.log('Network status changed:', status);
         setIsOnline(status.connected);
         setConnectionType(status.connectionType);

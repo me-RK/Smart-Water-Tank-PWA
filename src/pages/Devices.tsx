@@ -17,6 +17,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { discoverEsp32Devices, getNetworkInfo, getLocalIP } from '../utils/connectionTest';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { HardwareSettingsOverlay } from '../components/HardwareSettingsOverlay';
 
 interface NetworkDetails {
   // Device Info
@@ -81,6 +82,7 @@ export const Devices: React.FC = () => {
   const [networkDetails, setNetworkDetails] = useState<NetworkDetails | null>(null);
   const [isLoadingNetworkInfo, setIsLoadingNetworkInfo] = useState(false);
   const [showManualConnection, setShowManualConnection] = useState(false);
+  const [showHardwareSettings, setShowHardwareSettings] = useState(false);
   const [manualIP, setManualIP] = useState('');
 
   /**
@@ -361,6 +363,13 @@ export const Devices: React.FC = () => {
                     <CheckCircle className="w-4 h-4" />
                     <span className="text-sm font-medium">Connected</span>
                   </div>
+                  <button
+                    onClick={() => setShowHardwareSettings(true)}
+                    className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-wa text-sm font-medium transition-colors"
+                    title="Hardware Settings"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={handleDisconnect}
                     className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-wa text-sm font-medium transition-colors"
@@ -721,6 +730,13 @@ export const Devices: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Hardware Settings Overlay */}
+      <HardwareSettingsOverlay
+        isOpen={showHardwareSettings}
+        onClose={() => setShowHardwareSettings(false)}
+        deviceIP={deviceIP || ''}
+      />
 
       {/* Bottom Navigation */}
       <BottomNavigation />
