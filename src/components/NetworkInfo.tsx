@@ -171,7 +171,8 @@ export const NetworkInfo: React.FC<NetworkInfoProps> = ({ isOpen, onClose }) => 
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] page-scrollable">
+          <div className="page-content">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -390,6 +391,7 @@ export const NetworkInfo: React.FC<NetworkInfoProps> = ({ isOpen, onClose }) => 
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

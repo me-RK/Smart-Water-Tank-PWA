@@ -156,7 +156,8 @@ export const HardwareSettingsOverlay: React.FC<HardwareSettingsOverlayProps> = (
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg shadow-wa-xl max-w-lg w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+      <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg shadow-wa-xl max-w-lg w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto page-scrollable">
+        <div className="page-content">
         {/* Header */}
         <div className="flex items-center justify-between fluid-padding border-b border-wa-light-border dark:border-wa-dark-border">
           <div className="flex items-center gap-3">
@@ -577,6 +578,7 @@ export const HardwareSettingsOverlay: React.FC<HardwareSettingsOverlayProps> = (
             <span>{activeMotorCount} motor{activeMotorCount !== 1 ? 's' : ''} • {hasActiveSensors ? 'Sensors active' : 'No sensors'}</span>
             <span>Hardware Settings</span>
           </div>
+        </div>
         </div>
       </div>
     </div>

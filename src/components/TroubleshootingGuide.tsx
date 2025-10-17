@@ -174,7 +174,8 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] page-scrollable">
+          <div className="page-content">
           <div className="space-y-6">
             {troubleshootingSteps.map((step, index) => {
               const status = getStepStatus(step.id);
@@ -284,6 +285,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
                 <span>Reset Settings</span>
               </button>
             </div>
+          </div>
           </div>
         </div>
       </div>
