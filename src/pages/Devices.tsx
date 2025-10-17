@@ -324,15 +324,6 @@ export const Devices: React.FC = () => {
           </div>
         </div>
 
-        <div className="wa-header-actions">
-          <button
-            onClick={() => navigate('/settings')}
-            className="wa-header-button"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-        </div>
       </header>
 
       {/* Main Content */}
