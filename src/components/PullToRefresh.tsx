@@ -30,7 +30,6 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   className = '',
   disabled = false,
 }) => {
-  const [isPulling, setIsPulling] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [canRefresh, setCanRefresh] = useState(false);
@@ -68,7 +67,6 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
     if (distance > 0) {
       e.preventDefault();
       setPullDistance(distance);
-      setIsPulling(true);
 
       // Add haptic feedback when threshold is reached
       if (distance >= threshold && !canRefresh) {
@@ -93,7 +91,6 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
     if (disabled || isRefreshing || !isPullingRef.current) return;
 
     isPullingRef.current = false;
-    setIsPulling(false);
 
     if (canRefresh && pullDistance >= threshold) {
       setIsRefreshing(true);
@@ -128,10 +125,11 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
    */
   const getPullIndicatorStyle = () => {
     const opacity = Math.min(pullDistance / threshold, 1);
+    const translateY = Math.min(pullDistance * 0.8, 120); // Travel up to 120px down
     
     return {
-      transform: `translateY(${Math.min(pullDistance * 0.5, 40)}px)`,
       opacity: opacity,
+      transform: `translateX(-50%) translateY(${translateY}px)`,
     };
   };
 
@@ -152,31 +150,19 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      style={{
-        transform: isPulling ? `translateY(${Math.min(pullDistance * 0.3, 60)}px)` : 'translateY(0)',
-        transition: isPulling ? 'none' : 'transform 0.3s ease-out',
-      }}
     >
-      {/* Pull Indicator */}
+      {/* Pull Indicator - Chrome-style minimal */}
       <div
-        className={`wa-pull-indicator ${isPulling ? 'pulling' : ''} ${isRefreshing ? 'refreshing' : ''}`}
+        className="wa-pull-indicator"
         style={getPullIndicatorStyle()}
       >
         <div
-          className="flex items-center gap-2"
+          className="flex items-center justify-center"
           style={getRefreshIconStyle()}
         >
           <RefreshCw 
-            className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} 
+            className={`w-6 h-6 text-wa-teal-500 ${isRefreshing ? 'animate-spin' : ''}`} 
           />
-          <span className="text-sm font-medium">
-            {isRefreshing 
-              ? 'Refreshing...' 
-              : canRefresh 
-                ? 'Release to refresh' 
-                : 'Pull to refresh'
-            }
-          </span>
         </div>
       </div>
 

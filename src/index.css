@@ -1573,33 +1573,25 @@ select:focus-visible {
 }
 
 .wa-pull-indicator {
-  position: absolute;
-  top: -60px;
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + clamp(0.75rem, 3vw, 1.5rem) + clamp(0.75rem, 3vw, 1.5rem));
   left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--wa-light-text-muted);
-  font-size: 14px;
-  transition: top 0.3s ease;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
 }
 
-.wa-pull-indicator.pulling {
-  top: 20px;
-}
-
-.wa-pull-indicator.refreshing {
-  top: 20px;
-  color: var(--wa-teal-500);
-}
 
 .dark .wa-pull-indicator {
-  color: var(--wa-dark-text-muted);
-}
-
-.dark .wa-pull-indicator.refreshing {
-  color: var(--wa-teal-500);
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* WhatsApp-style toast notifications */

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../context/useWebSocket';
-import { useToast } from './useToast';
 import { PullToRefresh } from './PullToRefresh';
 import { 
   ArrowLeft, 
@@ -50,7 +49,6 @@ export const TankDetailView: React.FC<TankDetailViewProps> = ({
   onBack,
 }) => {
   const { appState, sendMessage } = useWebSocket();
-  const toast = useToast();
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<TankMessage[]>([]);
@@ -147,21 +145,13 @@ export const TankDetailView: React.FC<TankDetailViewProps> = ({
     setIsRefreshing(true);
     
     try {
-      // Send data request
+      // Send data request - no toast notifications
       sendMessage({ type: 'getAllData' });
       
       // Update messages
       setMessages(generateMessages());
-      
-      toast.showToast({
-        type: 'success',
-        message: 'Tank data refreshed',
-      });
     } catch {
-      toast.showToast({
-        type: 'error',
-        message: 'Failed to refresh data',
-      });
+      // Silent error handling
     } finally {
       setTimeout(() => setIsRefreshing(false), 1000);
     }

@@ -52,30 +52,14 @@ export const Dashboard: React.FC = () => {
    */
   const handleSyncData = useCallback(async () => {
     if (!isConnected) {
-      toast.showToast({
-        type: 'warning',
-        message: 'Not connected to device',
-      });
       return;
     }
     
-    try {
-      // Send unified data request
+    // Send unified data request - no toast notifications
     sendMessage({
       type: 'getAllData'
     });
-
-      toast.showToast({
-        type: 'success',
-        message: 'Data synced successfully',
-      });
-    } catch {
-      toast.showToast({
-        type: 'error',
-        message: 'Failed to sync data',
-      });
-    }
-  }, [isConnected, sendMessage, toast]);
+  }, [isConnected, sendMessage]);
 
   /**
    * Handle pull-to-refresh
