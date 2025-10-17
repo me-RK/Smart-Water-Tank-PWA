@@ -336,7 +336,8 @@ export const TankDetailView: React.FC<TankDetailViewProps> = ({
       </div>
 
       {/* Chat-Style Messages */}
-      <PullToRefresh onRefresh={handleRefresh} className="flex-1 pb-20">
+      <PullToRefresh onRefresh={handleRefresh} className="flex-1 page-scrollable">
+        <div className="page-content">
         <div className="px-4 py-4 space-y-4">
           {messages.map((message) => (
             <div key={message.id} className="animate-wa-slide-up">
@@ -371,6 +372,7 @@ export const TankDetailView: React.FC<TankDetailViewProps> = ({
               </p>
             </div>
           )}
+        </div>
         </div>
       </PullToRefresh>
 

@@ -210,8 +210,8 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content with Pull-to-Refresh */}
-      <PullToRefresh onRefresh={handlePullToRefresh} className="pb-20">
-        <main className="container-responsive fluid-padding">
+      <PullToRefresh onRefresh={handlePullToRefresh} className="page-scrollable">
+        <main className="container-responsive fluid-padding page-content">
           {/* System Status Card */}
           <div className="fluid-margin">
             <MaterialCard elevation={2} className="animate-wa-slide-up">

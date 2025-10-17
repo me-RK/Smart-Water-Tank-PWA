@@ -336,7 +336,7 @@ export const Devices: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container-responsive fluid-padding pb-20">
+      <main className="container-responsive fluid-padding page-content">
         {/* Connected Devices */}
         {isConnected && deviceIP ? (
           <div className="fluid-margin">

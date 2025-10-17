@@ -1879,6 +1879,31 @@ select:focus-visible {
   }
 }
 
+/* Bottom Navigation Spacing */
+.bottom-nav-spacer {
+  padding-bottom: calc(clamp(44px, 10vw, 56px) + clamp(0.5rem, 2vw, 0.75rem) + clamp(0.5rem, 2vw, 0.75rem) + env(safe-area-inset-bottom) + 1rem);
+}
+
+.bottom-nav-spacer-sm {
+  padding-bottom: calc(clamp(44px, 10vw, 56px) + clamp(0.5rem, 2vw, 0.75rem) + clamp(0.5rem, 2vw, 0.75rem) + env(safe-area-inset-bottom) + 0.5rem);
+}
+
+.bottom-nav-spacer-lg {
+  padding-bottom: calc(clamp(44px, 10vw, 56px) + clamp(0.5rem, 2vw, 0.75rem) + clamp(0.5rem, 2vw, 0.75rem) + env(safe-area-inset-bottom) + 2rem);
+}
+
+/* Page Content Container */
+.page-content {
+  min-height: 100vh;
+  padding-bottom: calc(clamp(44px, 10vw, 56px) + clamp(0.5rem, 2vw, 0.75rem) + clamp(0.5rem, 2vw, 0.75rem) + env(safe-area-inset-bottom) + 1rem);
+}
+
+/* Ensure content is scrollable above bottom nav */
+.page-scrollable {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .dark .wa-skeleton-card {
   background: var(--wa-dark-panel);
   border-color: var(--wa-dark-border);

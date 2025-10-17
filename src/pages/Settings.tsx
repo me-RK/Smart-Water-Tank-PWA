@@ -68,7 +68,7 @@ export const Settings: React.FC = () => {
 
 
       {/* Main Content */}
-      <main className="container-responsive fluid-padding pb-20">
+      <main className="container-responsive fluid-padding page-content">
         {/* Profile Section */}
         <div className="bg-wa-light-panel dark:bg-wa-dark-panel border-b border-wa-light-border dark:border-wa-dark-border">
           <div className="fluid-padding">
