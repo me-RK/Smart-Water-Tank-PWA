@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../context/useWebSocket';
 import { usePageData } from '../hooks/usePageData';
@@ -14,7 +14,8 @@ import {
   Bell,
   Moon,
   Sun,
-  Smartphone
+  Smartphone,
+  Clock
 } from 'lucide-react';
 
 /**
@@ -32,8 +33,26 @@ import {
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
   const { isConnected } = useWebSocket();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   usePageData();
+
+  // Sync interval state
+  const [syncInterval, setSyncInterval] = useState<number>(() => {
+    const saved = localStorage.getItem('dashboardSyncInterval');
+    return saved ? parseInt(saved, 10) : 5000; // Default 5 seconds
+  });
+
+  // Update sync interval and notify Dashboard
+  const updateSyncInterval = (newInterval: number) => {
+    setSyncInterval(newInterval);
+    localStorage.setItem('dashboardSyncInterval', newInterval.toString());
+    
+    // Notify Dashboard of the change
+    const event = new CustomEvent('syncIntervalChanged', {
+      detail: { interval: newInterval }
+    });
+    window.dispatchEvent(event);
+  };
   
 
 
@@ -126,22 +145,51 @@ export const Settings: React.FC = () => {
             
             <div className="wa-chat-item">
               <div className="wa-avatar">
-                {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                {theme === 'dark' ? <Moon className="w-5 h-5" /> : theme === 'light' ? <Sun className="w-5 h-5" /> : <Smartphone className="w-5 h-5" />}
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-wa-base font-medium text-wa-light-text dark:text-wa-dark-text">
-                  Dark Mode
+                  Theme
                 </h4>
                 <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                  Switch between light and dark themes
+                  Choose your preferred theme
                 </p>
               </div>
-              <ToggleSwitch
-                checked={theme === 'dark'}
-                onChange={toggleTheme}
-                label=""
-                color="purple"
-              />
+              <select
+                value={theme}
+                onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
+                className="text-wa-sm bg-wa-light-panel dark:bg-wa-dark-panel border border-wa-light-border dark:border-wa-dark-border rounded-wa px-2 py-1 text-wa-light-text dark:text-wa-dark-text"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="system">System</option>
+              </select>
+            </div>
+
+            <div className="wa-chat-item">
+              <div className="wa-avatar">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-wa-base font-medium text-wa-light-text dark:text-wa-dark-text">
+                  Sync Interval
+                </h4>
+                <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                  How often to refresh tank data
+                </p>
+              </div>
+              <select
+                value={syncInterval}
+                onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
+                className="text-wa-sm bg-wa-light-panel dark:bg-wa-dark-panel border border-wa-light-border dark:border-wa-dark-border rounded-wa px-2 py-1 text-wa-light-text dark:text-wa-dark-text"
+              >
+                <option value={0}>Off</option>
+                <option value={2000}>2s</option>
+                <option value={5000}>5s</option>
+                <option value={10000}>10s</option>
+                <option value={30000}>30s</option>
+                <option value={60000}>1m</option>
+              </select>
             </div>
 
             <div className="wa-chat-item">

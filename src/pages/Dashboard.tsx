@@ -38,7 +38,6 @@ export const Dashboard: React.FC = () => {
     console.log('Dashboard - System Status:', appState.systemStatus);
   }, [appState.tankData, appState.systemSettings.sensors, appState.systemStatus]);
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     isOpen: boolean;
@@ -46,11 +45,7 @@ export const Dashboard: React.FC = () => {
     variant: 'success' | 'error' | 'info' | 'warning';
   }>({ isOpen: false, message: '', variant: 'info' });
   
-  // Auto-sync functionality
-  const [syncInterval, setSyncInterval] = useState<number>(() => {
-    const saved = localStorage.getItem('dashboardSyncInterval');
-    return saved ? parseInt(saved, 10) : 5000; // Default 5 seconds
-  });
+  // Auto-sync functionality - interval is now managed in Settings
 
   /**
    * Handles manual data synchronization with ESP32
@@ -63,8 +58,6 @@ export const Dashboard: React.FC = () => {
       });
       return;
     }
-    
-    setIsRefreshing(true);
     
     try {
       // Send unified data request
@@ -81,11 +74,6 @@ export const Dashboard: React.FC = () => {
         type: 'error',
         message: 'Failed to sync data',
       });
-    } finally {
-    // Simulate refresh delay for better UX
-    setTimeout(() => {
-      setIsRefreshing(false);
-    }, 1000);
     }
   }, [isConnected, sendMessage, toast]);
 
@@ -96,18 +84,7 @@ export const Dashboard: React.FC = () => {
     await handleSyncData();
   }, [handleSyncData]);
 
-  /**
-   * Updates the auto-sync interval and persists to localStorage
-   */
-  const updateSyncInterval = useCallback((newInterval: number) => {
-    setSyncInterval(newInterval);
-    localStorage.setItem('dashboardSyncInterval', newInterval.toString());
-    
-    // Restart auto-sync with new interval
-    if (isConnected) {
-      startDashboardSync();
-    }
-  }, [isConnected, startDashboardSync]);
+  // Sync interval is now managed in Settings page
 
 
   // Effect to manage auto-sync based on connection status
@@ -125,7 +102,12 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const handleSyncIntervalChange = (event: CustomEvent) => {
       const newInterval = event.detail.interval;
-      updateSyncInterval(newInterval);
+      localStorage.setItem('dashboardSyncInterval', newInterval.toString());
+      
+      // Restart auto-sync with new interval
+      if (isConnected) {
+        startDashboardSync();
+      }
     };
 
     window.addEventListener('syncIntervalChanged', handleSyncIntervalChange as EventListener);
@@ -133,7 +115,7 @@ export const Dashboard: React.FC = () => {
     return () => {
       window.removeEventListener('syncIntervalChanged', handleSyncIntervalChange as EventListener);
     };
-  }, [updateSyncInterval]);
+  }, [isConnected, startDashboardSync]);
 
 
   /**
@@ -235,32 +217,10 @@ export const Dashboard: React.FC = () => {
 
           {/* Tank Monitoring Section */}
           <div className="fluid-margin">
-            <div className="flex items-center justify-between fluid-margin">
+            <div className="fluid-margin">
               <h2 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
                 Tank Monitoring
               </h2>
-              <div className="flex items-center gap-2">
-                  <select
-                    value={syncInterval}
-                    onChange={(e) => updateSyncInterval(parseInt(e.target.value, 10))}
-                  className="text-wa-sm bg-wa-light-panel dark:bg-wa-dark-panel border border-wa-light-border dark:border-wa-dark-border rounded-wa px-2 py-1"
-                  >
-                    <option value={0}>Off</option>
-                    <option value={2000}>2s</option>
-                    <option value={5000}>5s</option>
-                    <option value={10000}>10s</option>
-                    <option value={30000}>30s</option>
-                    <option value={60000}>1m</option>
-                  </select>
-                <button
-                  onClick={handleSyncData}
-                  disabled={!isConnected || isRefreshing}
-                  className="wa-header-button"
-                  title="Sync Now"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
             </div>
           
             {/* Tank Cards - WhatsApp Chat Style */}
