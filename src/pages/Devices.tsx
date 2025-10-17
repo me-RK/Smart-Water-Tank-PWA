@@ -17,7 +17,7 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { discoverEsp32Devices, getNetworkInfo, getLocalIP } from '../utils/connectionTest';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import { HardwareSettingsOverlay } from '../components/HardwareSettingsOverlay';
+import { TopologyHardwareSettings } from '../components/TopologyHardwareSettings';
 
 interface NetworkDetails {
   // Device Info
@@ -729,7 +729,7 @@ export const Devices: React.FC = () => {
       )}
 
       {/* Hardware Settings Overlay */}
-      <HardwareSettingsOverlay
+      <TopologyHardwareSettings
         isOpen={showHardwareSettings}
         onClose={() => setShowHardwareSettings(false)}
         deviceIP={deviceIP || ''}

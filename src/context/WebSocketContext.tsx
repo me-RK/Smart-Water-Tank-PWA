@@ -4,6 +4,8 @@ import { initialAppState } from './WebSocketUtils';
 import { WebSocketContext } from './WebSocketContextDefinition';
 import type { WebSocketContextType } from './WebSocketContextDefinition';
 import { Capacitor } from '@capacitor/core';
+import { MOTOR_CONFIGURATION_LABELS } from '../constants/motorConfigurations';
+import type { MotorConfigurationType } from '../constants/motorConfigurations';
 
 // Re-export the context for easier imports
 export { WebSocketContext };
@@ -110,6 +112,35 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           case 'settingData': {
             // v3.0 Settings data response
             const mode = message.systemMode || 'Manual Mode';
+            
+            // Handle new topology-based configuration
+            if (message.config) {
+              const topologyConfig = message.config;
+              newState.systemSettings = {
+                ...prevState.systemSettings,
+                mode: topologyConfig.systemMode === 'auto' ? 'Auto Mode' : 'Manual Mode',
+                topologySettings: {
+                  ...prevState.systemSettings.topologySettings,
+                  systemTopology: topologyConfig.topology,
+                  topologyLabel: MOTOR_CONFIGURATION_LABELS[topologyConfig.topology as MotorConfigurationType] || 'Unknown',
+                  autoMode: topologyConfig.systemMode === 'auto'
+                },
+                sensors: {
+                  lowerTankA: topologyConfig.sensors.lowerTankA.enabled,
+                  lowerTankB: topologyConfig.sensors.lowerTankB.enabled,
+                  upperTankA: topologyConfig.sensors.upperTankA.enabled,
+                  upperTankB: topologyConfig.sensors.upperTankB.enabled
+                },
+                motorSettings: {
+                  ...prevState.systemSettings.motorSettings,
+                  motor1Enabled: topologyConfig.motors.m1.enabled,
+                  motor2Enabled: topologyConfig.motors.m2.enabled
+                }
+              };
+              newState.isConnected = true;
+              newState.error = null;
+              break;
+            }
             
             newState.systemSettings = {
               ...prevState.systemSettings,
@@ -632,6 +663,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               ws.send('motor1On');
             } else {
               ws.send('motor1Off');
+            }
+            break;
+          case 'settingData':
+            // Send new topology-based configuration
+            if (message.config) {
+              ws.send(JSON.stringify({
+                type: 'settingData',
+                config: message.config
+              }));
             }
             break;
           case 'updateSettings':

@@ -58,7 +58,7 @@ export interface TankAutomationSettings {
 }
 
 export interface TopologySettings {
-  systemTopology: number; // 1-5
+  systemTopology: number; // 1-6
   topologyLabel: string;
   autoMode: boolean;
   preventSimultaneous: boolean;
@@ -69,6 +69,48 @@ export interface TopologySettings {
   faultCooldown: number; // seconds
   maxRetryAttempts: number;
   logEnabled: boolean;
+}
+
+// New topology-based configuration structure
+export interface TopologyConfig {
+  topology: number; // 1-6
+  systemMode: 'auto' | 'manual';
+  sensors: {
+    upperTankA: {
+      enabled: boolean;
+      tankHeight: number; // TH - Total height of the tank
+      tankWaterFullHeight: number; // TWFH - Sensor distance reading when tank is full
+      tankWaterEmptyHeight: number; // TWEH - Sensor distance reading when tank is empty
+    };
+    lowerTankA: {
+      enabled: boolean;
+      tankHeight: number; // TH - Total height of the tank
+      tankWaterFullHeight: number; // TWFH - Sensor distance reading when tank is full
+      tankWaterEmptyHeight: number; // TWEH - Sensor distance reading when tank is empty
+    };
+    upperTankB: {
+      enabled: boolean;
+      tankHeight: number; // TH - Total height of the tank
+      tankWaterFullHeight: number; // TWFH - Sensor distance reading when tank is full
+      tankWaterEmptyHeight: number; // TWEH - Sensor distance reading when tank is empty
+    };
+    lowerTankB: {
+      enabled: boolean;
+      tankHeight: number; // TH - Total height of the tank
+      tankWaterFullHeight: number; // TWFH - Sensor distance reading when tank is full
+      tankWaterEmptyHeight: number; // TWEH - Sensor distance reading when tank is empty
+    };
+  };
+  motors: {
+    m1: {
+      enabled: boolean;
+      safeStopTime: number; // minutes, only for manual mode
+    };
+    m2: {
+      enabled: boolean;
+      safeStopTime: number; // minutes, only for manual mode
+    };
+  };
 }
 
 export interface SystemSettings {
@@ -267,6 +309,9 @@ export interface WebSocketMessage {
   
   // Settings payload for updateSettings command
   settings?: SystemSettings;
+  
+  // New topology-based configuration payload
+  config?: TopologyConfig;
   
   // Legacy fields for backward compatibility with old firmware
   RTV?: string; // Runtime value
