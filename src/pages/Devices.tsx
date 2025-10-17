@@ -336,11 +336,11 @@ export const Devices: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="px-4 py-4 pb-20">
+      <main className="container-responsive fluid-padding pb-20">
         {/* Connected Devices */}
         {isConnected && deviceIP ? (
-          <div className="mb-6">
-            <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text mb-4">
+          <div className="fluid-margin">
+            <h2 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text fluid-margin">
               Connected Devices
             </h2>
             <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg p-4 shadow-wa">
@@ -358,24 +358,27 @@ export const Devices: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="header-buttons">
                   <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
                     <CheckCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Connected</span>
+                    <span className="text-sm font-medium hidden xs:inline">Connected</span>
                   </div>
-                  <button
-                    onClick={() => setShowHardwareSettings(true)}
-                    className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-wa text-sm font-medium transition-colors"
-                    title="Hardware Settings"
-                  >
-                    <Settings className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={handleDisconnect}
-                    className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-wa text-sm font-medium transition-colors"
-                  >
-                    Disconnect
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setShowHardwareSettings(true)}
+                      className="touch-responsive-sm px-2 sm:px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-wa text-sm font-medium transition-colors"
+                      title="Hardware Settings"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={handleDisconnect}
+                      className="touch-responsive-sm px-2 sm:px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-wa text-sm font-medium transition-colors"
+                    >
+                      <span className="hidden sm:inline">Disconnect</span>
+                      <span className="sm:hidden">DC</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -423,11 +426,11 @@ export const Devices: React.FC = () => {
 
 
         {/* Quick Actions */}
-        <div className="mb-6">
-          <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text mb-3">
+        <div className="fluid-margin">
+          <h3 className="text-responsive-base font-semibold text-wa-light-text dark:text-wa-dark-text fluid-margin-sm">
             Quick Actions
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="button-grid">
             <button
               onClick={handleScanForDevices}
               disabled={isScanning || isConnected}
@@ -610,10 +613,10 @@ export const Devices: React.FC = () => {
               </div>
             )}
 
-            <div className="mt-6 flex gap-3">
+            <div className="modal-buttons">
               <button
                 onClick={() => setShowNetworkInfo(false)}
-                className="flex-1 bg-wa-teal-500 hover:bg-wa-teal-600 text-white px-4 py-2 rounded-wa font-medium transition-colors"
+                className="bg-wa-teal-500 hover:bg-wa-teal-600 text-white rounded-wa font-medium transition-colors"
               >
                 Close
               </button>
@@ -621,14 +624,15 @@ export const Devices: React.FC = () => {
                 <button
                   onClick={gatherNetworkInfo}
                   disabled={isLoadingNetworkInfo}
-                  className="px-4 py-2 bg-wa-light-bg dark:bg-wa-dark-bg border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="bg-wa-light-bg dark:bg-wa-dark-bg border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isLoadingNetworkInfo ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Search className="w-4 h-4" />
                   )}
-                  Refresh
+                  <span className="hidden sm:inline">Refresh</span>
+                  <span className="sm:hidden">Reload</span>
                 </button>
               )}
             </div>
@@ -702,27 +706,29 @@ export const Devices: React.FC = () => {
               )}
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="modal-buttons">
               <button
                 onClick={() => setShowManualConnection(false)}
-                className="flex-1 px-4 py-2 bg-wa-light-bg dark:bg-wa-dark-bg border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors"
+                className="bg-wa-light-bg dark:bg-wa-dark-bg border border-wa-light-border dark:border-wa-dark-border text-wa-light-text dark:text-wa-dark-text rounded-wa font-medium hover:bg-wa-light-panel dark:hover:bg-wa-dark-panel transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleManualConnect}
                 disabled={!manualIP.trim() || isConnecting}
-                className="flex-1 bg-wa-teal-500 hover:bg-wa-teal-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-wa font-medium transition-colors flex items-center justify-center gap-2"
+                className="bg-wa-teal-500 hover:bg-wa-teal-600 disabled:bg-gray-400 text-white rounded-wa font-medium transition-colors flex items-center justify-center gap-2"
               >
                 {isConnecting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting...
+                    <span className="hidden sm:inline">Connecting...</span>
+                    <span className="sm:hidden">Connecting</span>
                   </>
                 ) : (
                   <>
                     <Wifi className="w-4 h-4" />
-                    Connect
+                    <span className="hidden sm:inline">Connect</span>
+                    <span className="sm:hidden">Connect</span>
                   </>
                 )}
               </button>

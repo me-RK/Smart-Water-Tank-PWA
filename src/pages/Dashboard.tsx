@@ -211,9 +211,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Main Content with Pull-to-Refresh */}
       <PullToRefresh onRefresh={handlePullToRefresh} className="pb-20">
-        <main className="px-4 py-4">
+        <main className="container-responsive fluid-padding">
           {/* System Status Card */}
-          <div className="mb-4">
+          <div className="fluid-margin">
             <MaterialCard elevation={2} className="animate-wa-slide-up">
             <StatusCard
               connected={appState.systemStatus.connected}
@@ -234,9 +234,9 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Tank Monitoring Section */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
+          <div className="fluid-margin">
+            <div className="flex items-center justify-between fluid-margin">
+              <h2 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
                 Tank Monitoring
               </h2>
               <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export const Dashboard: React.FC = () => {
             </div>
           
             {/* Tank Cards - WhatsApp Chat Style */}
-            <div className="space-y-2">
+            <div className="fluid-gap-sm">
               {/* Tank A Upper */}
               {appState.systemSettings.sensors.upperTankA && (
                 <div className="wa-chat-item animate-wa-slide-up">

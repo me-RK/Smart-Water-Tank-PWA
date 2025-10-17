@@ -68,19 +68,19 @@ export const Settings: React.FC = () => {
 
 
       {/* Main Content */}
-      <main className="pb-20">
+      <main className="container-responsive fluid-padding pb-20">
         {/* Profile Section */}
         <div className="bg-wa-light-panel dark:bg-wa-dark-panel border-b border-wa-light-border dark:border-wa-dark-border">
-          <div className="px-4 py-6">
+          <div className="fluid-padding">
             <div className="flex items-center gap-4">
               <div className="wa-avatar large">
                 <Droplets className="w-8 h-8" />
               </div>
               <div className="flex-1">
-                <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
+                <h2 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
                   Smart Water Tank
                 </h2>
-                <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                <p className="text-responsive-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
                   by EmptyIdea • App Settings & Configuration
                 </p>
                 <div className="flex items-center gap-4 mt-2">

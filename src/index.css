@@ -404,10 +404,69 @@ select:focus-visible {
   }
 }
 
-/* Mobile optimizations */
+/* Enhanced Mobile Optimizations */
 @media (max-width: 768px) {
   html {
-    font-size: 14px;
+    font-size: clamp(14px, 3.5vw, 16px);
+  }
+  
+  /* Improve touch targets on mobile */
+  .touch-target-mobile {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Optimize spacing for mobile */
+  .mobile-spacing {
+    padding: clamp(0.75rem, 3vw, 1rem);
+    margin: clamp(0.5rem, 2vw, 0.75rem);
+  }
+  
+  /* Stack elements vertically on mobile */
+  .mobile-stack {
+    flex-direction: column;
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+  }
+  
+  /* Full width buttons on mobile */
+  .mobile-full-width {
+    width: 100%;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .landscape-optimize {
+    padding: clamp(0.5rem, 2vw, 0.75rem);
+  }
+  
+  .landscape-compact {
+    min-height: clamp(40px, 8vw, 50px);
+  }
+}
+
+/* Small screen optimizations */
+@media (max-width: 480px) {
+  .small-screen-optimize {
+    padding: clamp(0.5rem, 2.5vw, 0.75rem);
+    font-size: clamp(0.875rem, 3vw, 1rem);
+  }
+  
+  .small-screen-compact {
+    gap: clamp(0.25rem, 1.5vw, 0.5rem);
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1024px) {
+  .large-screen-optimize {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .large-screen-spread {
+    gap: clamp(1rem, 2.5vw, 2rem);
   }
 }
 
@@ -547,42 +606,293 @@ select:focus-visible {
   background: #4b5563;
 }
 
-/* Responsive grid layouts */
+/* Enhanced Responsive Grid System */
 .responsive-grid {
   display: grid;
-  gap: 1rem;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   grid-template-columns: 1fr;
+}
+
+@media (min-width: 320px) {
+  .responsive-grid {
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
 }
 
 @media (min-width: 640px) {
   .responsive-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
+  }
+}
+
+@media (min-width: 768px) {
+  .responsive-grid {
+    gap: clamp(1.25rem, 3.5vw, 2.25rem);
   }
 }
 
 @media (min-width: 1024px) {
   .responsive-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
   }
 }
 
 @media (min-width: 1280px) {
   .responsive-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: clamp(1.75rem, 4.5vw, 3rem);
   }
 }
 
-/* Fluid spacing using clamp() */
+@media (min-width: 1536px) {
+  .responsive-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: clamp(2rem, 5vw, 3.5rem);
+  }
+}
+
+/* Responsive Card Grid */
+.card-grid {
+  display: grid;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .card-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Responsive Button Grid */
+.button-grid {
+  display: grid;
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .button-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .button-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .button-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Enhanced Fluid Spacing System */
 .fluid-padding {
   padding: clamp(1rem, 2vw, 2rem);
+}
+
+.fluid-padding-sm {
+  padding: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+.fluid-padding-lg {
+  padding: clamp(1.5rem, 3vw, 3rem);
+}
+
+.fluid-padding-xl {
+  padding: clamp(2rem, 4vw, 4rem);
 }
 
 .fluid-margin {
   margin: clamp(0.5rem, 1vw, 1rem);
 }
 
+.fluid-margin-sm {
+  margin: clamp(0.25rem, 0.75vw, 0.5rem);
+}
+
+.fluid-margin-lg {
+  margin: clamp(1rem, 2vw, 2rem);
+}
+
+.fluid-margin-xl {
+  margin: clamp(1.5rem, 3vw, 3rem);
+}
+
 .fluid-gap {
   gap: clamp(0.5rem, 1.5vw, 1.5rem);
+}
+
+.fluid-gap-sm {
+  gap: clamp(0.25rem, 1vw, 0.75rem);
+}
+
+.fluid-gap-lg {
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+.fluid-gap-xl {
+  gap: clamp(1.5rem, 3.5vw, 3rem);
+}
+
+/* Responsive Container System */
+.container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(1rem, 4vw, 2rem);
+  padding-right: clamp(1rem, 4vw, 2rem);
+}
+
+@media (min-width: 320px) {
+  .container-responsive {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-responsive {
+    max-width: 1536px;
+  }
+}
+
+/* Responsive Typography Scale */
+.text-responsive-xs { 
+  font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); 
+  line-height: clamp(1.2, 1.1 + 0.1vw, 1.3);
+}
+
+.text-responsive-sm { 
+  font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem); 
+  line-height: clamp(1.3, 1.2 + 0.1vw, 1.4);
+}
+
+.text-responsive-base { 
+  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem); 
+  line-height: clamp(1.4, 1.3 + 0.1vw, 1.5);
+}
+
+.text-responsive-lg { 
+  font-size: clamp(1.125rem, 1rem + 0.625vw, 1.25rem); 
+  line-height: clamp(1.5, 1.4 + 0.1vw, 1.6);
+}
+
+.text-responsive-xl { 
+  font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem); 
+  line-height: clamp(1.6, 1.5 + 0.1vw, 1.7);
+}
+
+.text-responsive-2xl { 
+  font-size: clamp(1.5rem, 1.3rem + 1vw, 1.875rem); 
+  line-height: clamp(1.7, 1.6 + 0.1vw, 1.8);
+}
+
+.text-responsive-3xl { 
+  font-size: clamp(1.875rem, 1.6rem + 1.375vw, 2.25rem); 
+  line-height: clamp(1.8, 1.7 + 0.1vw, 1.9);
+}
+
+/* Responsive Component Sizing */
+.component-responsive {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 320px) {
+  .component-responsive {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 480px) {
+  .component-responsive {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 768px) {
+  .component-responsive {
+    max-width: 80%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .component-responsive {
+    max-width: 70%;
+  }
+}
+
+@media (min-width: 1280px) {
+  .component-responsive {
+    max-width: 60%;
+  }
+}
+
+/* Responsive Touch Targets */
+.touch-responsive {
+  min-height: clamp(44px, 8vw, 56px);
+  min-width: clamp(44px, 8vw, 56px);
+  padding: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+.touch-responsive-sm {
+  min-height: clamp(36px, 6vw, 44px);
+  min-width: clamp(36px, 6vw, 44px);
+  padding: clamp(0.375rem, 1vw, 0.75rem);
+}
+
+.touch-responsive-lg {
+  min-height: clamp(56px, 10vw, 72px);
+  min-width: clamp(56px, 10vw, 72px);
+  padding: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 /* Android-specific input styles */
@@ -835,16 +1145,93 @@ select:focus-visible {
 .text-responsive-2xl { font-size: clamp(1.5rem, 1.3rem + 1vw, 1.875rem); }
 .text-responsive-3xl { font-size: clamp(1.875rem, 1.6rem + 1.375vw, 2.25rem); }
 
-/* Android-specific container queries */
+/* Enhanced Container Queries */
 @container (min-width: 320px) {
   .container-responsive {
-    padding: 1rem;
+    padding: clamp(0.75rem, 2vw, 1rem);
+  }
+  
+  .container-responsive .wa-chat-item {
+    min-height: clamp(50px, 10vw, 60px);
+  }
+  
+  .container-responsive .wa-avatar {
+    width: clamp(36px, 7vw, 48px);
+    height: clamp(36px, 7vw, 48px);
+  }
+}
+
+@container (min-width: 480px) {
+  .container-responsive {
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+  }
+  
+  .container-responsive .wa-chat-item {
+    min-height: clamp(60px, 12vw, 72px);
+  }
+  
+  .container-responsive .wa-avatar {
+    width: clamp(40px, 8vw, 52px);
+    height: clamp(40px, 8vw, 52px);
   }
 }
 
 @container (min-width: 768px) {
   .container-responsive {
-    padding: 2rem;
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+  
+  .container-responsive .wa-chat-item {
+    min-height: clamp(70px, 14vw, 80px);
+  }
+  
+  .container-responsive .wa-avatar {
+    width: clamp(44px, 9vw, 56px);
+    height: clamp(44px, 9vw, 56px);
+  }
+}
+
+@container (min-width: 1024px) {
+  .container-responsive {
+    padding: clamp(2rem, 3.5vw, 2.5rem);
+  }
+  
+  .container-responsive .wa-chat-item {
+    min-height: clamp(80px, 16vw, 90px);
+  }
+  
+  .container-responsive .wa-avatar {
+    width: clamp(48px, 10vw, 60px);
+    height: clamp(48px, 10vw, 60px);
+  }
+}
+
+/* Responsive Modal and Overlay Sizing */
+@container (min-width: 320px) {
+  .modal-responsive {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+}
+
+@container (min-width: 480px) {
+  .modal-responsive {
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+}
+
+@container (min-width: 768px) {
+  .modal-responsive {
+    max-width: 80vw;
+    max-height: 85vh;
+  }
+}
+
+@container (min-width: 1024px) {
+  .modal-responsive {
+    max-width: 70vw;
+    max-height: 80vh;
   }
 }
 
@@ -899,15 +1286,16 @@ select:focus-visible {
   color: var(--wa-dark-text);
 }
 
-/* WhatsApp-style chat list items */
+/* Enhanced WhatsApp-style chat list items */
 .wa-chat-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
   border-bottom: 1px solid var(--wa-light-border);
   transition: background-color 0.2s ease;
   cursor: pointer;
-  min-height: 72px;
+  min-height: clamp(60px, 12vw, 80px);
+  gap: clamp(0.75rem, 2vw, 1rem);
 }
 
 .wa-chat-item:hover {
@@ -930,10 +1318,10 @@ select:focus-visible {
   background: var(--wa-dark-border);
 }
 
-/* WhatsApp-style avatar */
+/* Enhanced WhatsApp-style avatar */
 .wa-avatar {
-  width: 48px;
-  height: 48px;
+  width: clamp(40px, 8vw, 56px);
+  height: clamp(40px, 8vw, 56px);
   border-radius: 50%;
   background: var(--wa-teal-500);
   color: white;
@@ -941,21 +1329,20 @@ select:focus-visible {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 18px;
-  margin-right: 12px;
+  font-size: clamp(14px, 3vw, 20px);
   flex-shrink: 0;
 }
 
 .wa-avatar.large {
-  width: 56px;
-  height: 56px;
-  font-size: 20px;
+  width: clamp(56px, 10vw, 72px);
+  height: clamp(56px, 10vw, 72px);
+  font-size: clamp(18px, 4vw, 24px);
 }
 
 .wa-avatar.small {
-  width: 32px;
-  height: 32px;
-  font-size: 14px;
+  width: clamp(32px, 6vw, 40px);
+  height: clamp(32px, 6vw, 40px);
+  font-size: clamp(12px, 2.5vw, 16px);
 }
 
 /* WhatsApp-style status indicators */
@@ -981,7 +1368,7 @@ select:focus-visible {
   background: #ffa726;
 }
 
-/* WhatsApp-style bottom navigation */
+/* Enhanced WhatsApp-style bottom navigation */
 .wa-bottom-nav {
   position: fixed;
   bottom: 0;
@@ -992,10 +1379,11 @@ select:focus-visible {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  padding: clamp(0.5rem, 2vw, 0.75rem) 0;
+  padding-bottom: calc(clamp(0.5rem, 2vw, 0.75rem) + env(safe-area-inset-bottom));
   z-index: 50;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  gap: clamp(0.25rem, 1vw, 0.5rem);
 }
 
 .dark .wa-bottom-nav {
@@ -1007,13 +1395,15 @@ select:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(0.75rem, 2vw, 1rem);
+  border-radius: clamp(6px, 1.5vw, 10px);
   transition: all 0.2s ease;
   cursor: pointer;
-  min-width: 48px;
-  min-height: 48px;
+  min-width: clamp(44px, 10vw, 56px);
+  min-height: clamp(44px, 10vw, 56px);
   justify-content: center;
+  flex: 1;
+  max-width: clamp(60px, 15vw, 80px);
 }
 
 .wa-bottom-nav-item:hover {
@@ -1033,22 +1423,24 @@ select:focus-visible {
 }
 
 .wa-bottom-nav-icon {
-  width: 24px;
-  height: 24px;
+  width: clamp(20px, 5vw, 28px);
+  height: clamp(20px, 5vw, 28px);
   transition: transform 0.2s ease;
 }
 
 .wa-bottom-nav-label {
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: clamp(9px, 2.5vw, 12px);
+  margin-top: clamp(2px, 0.5vw, 4px);
   font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
 }
 
-/* WhatsApp-style header */
+/* Enhanced WhatsApp-style header */
 .wa-header {
   background: var(--wa-teal-500);
   color: white;
-  padding: 16px;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1056,23 +1448,25 @@ select:focus-visible {
   top: 0;
   z-index: 40;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: clamp(0.5rem, 2vw, 1rem);
 }
 
 .wa-header-title {
-  font-size: 18px;
+  font-size: clamp(1rem, 4vw, 1.25rem);
   font-weight: 600;
   margin: 0;
+  line-height: 1.2;
 }
 
 .wa-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: clamp(0.25rem, 1.5vw, 0.75rem);
 }
 
 .wa-header-button {
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   border: none;
@@ -1082,6 +1476,7 @@ select:focus-visible {
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .wa-header-button:hover {
@@ -1401,6 +1796,87 @@ select:focus-visible {
   border-radius: 8px;
   background: var(--wa-light-panel);
   border: 1px solid var(--wa-light-border);
+}
+
+/* Button Overflow Prevention */
+.button-group-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  align-items: center;
+}
+
+.button-group-responsive > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .button-group-responsive {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .button-group-responsive > * {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Modal Button Layouts */
+.modal-buttons {
+  display: flex;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  margin-top: clamp(1rem, 4vw, 1.5rem);
+}
+
+@media (max-width: 640px) {
+  .modal-buttons {
+    flex-direction: column;
+  }
+}
+
+.modal-buttons button {
+  flex: 1;
+  min-height: clamp(44px, 12vw, 48px);
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  padding: clamp(0.5rem, 3vw, 0.75rem) clamp(1rem, 4vw, 1.5rem);
+}
+
+/* Header Button Groups */
+.header-buttons {
+  display: flex;
+  gap: clamp(0.25rem, 1vw, 0.5rem);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .header-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .header-buttons > div {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+}
+
+/* Text Overflow Prevention */
+.text-overflow-safe {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .text-overflow-safe {
+    white-space: normal;
+    text-overflow: initial;
+  }
 }
 
 .dark .wa-skeleton-card {

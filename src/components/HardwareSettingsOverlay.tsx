@@ -155,19 +155,19 @@ export const HardwareSettingsOverlay: React.FC<HardwareSettingsOverlayProps> = (
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg shadow-wa-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-wa-light-panel dark:bg-wa-dark-panel rounded-wa-lg shadow-wa-xl max-w-lg w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-wa-light-border dark:border-wa-dark-border">
+        <div className="flex items-center justify-between fluid-padding border-b border-wa-light-border dark:border-wa-dark-border">
           <div className="flex items-center gap-3">
             <div className="wa-avatar">
               <SettingsIcon className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
+              <h3 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
                 Hardware Settings
               </h3>
-              <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
+              <p className="text-responsive-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
                 {deviceIP} • {configDetails.description}
               </p>
             </div>
@@ -239,7 +239,7 @@ export const HardwareSettingsOverlay: React.FC<HardwareSettingsOverlayProps> = (
         )}
 
         {/* Content */}
-        <div className="p-4 space-y-1">
+        <div className="fluid-padding fluid-gap-sm">
           {/* System Mode */}
           <div className="bg-wa-light-bg dark:bg-wa-dark-bg rounded-wa">
             <div className="wa-chat-item">
