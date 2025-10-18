@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '../context/useWebSocket';
 import { usePageData } from '../hooks/usePageData';
 import { StatusCard } from '../components/StatusCard';
+import { StatusConsole } from '../components/StatusConsole';
 import { MaterialButton } from '../components/MaterialButton';
 import { MaterialCard } from '../components/MaterialCard';
 import { MaterialBottomSheet } from '../components/MaterialBottomSheet';
@@ -84,7 +85,7 @@ export const Dashboard: React.FC = () => {
           message: 'Sync failed - check connection',
         });
       }
-    } catch (error) {
+    } catch {
       toast.showToast({
         type: 'error',
         message: 'Sync failed - check connection',
@@ -133,41 +134,6 @@ export const Dashboard: React.FC = () => {
   }, [isConnected, startDashboardSync]);
 
 
-  /**
-   * Handles motor toggle for manual control mode
-   */
-  const handleMotorToggle = (motorNumber: 1 | 2) => {
-    const currentMotorState = motorNumber === 1 ? appState.systemStatus.motor1Status : appState.systemStatus.motor2Status;
-    const isMotorCurrentlyOn = currentMotorState === 'ON';
-    const newMotorState = !isMotorCurrentlyOn;
-    
-    sendMessage({
-      type: newMotorState ? `motor${motorNumber}On` : `motor${motorNumber}Off`
-    });
-
-    toast.showToast({
-      type: 'success',
-      message: `Motor ${motorNumber} ${newMotorState ? 'started' : 'stopped'}`,
-    });
-  };
-
-  /**
-   * Get tank avatar based on tank name and type
-   */
-  const getTankAvatar = (tankName: string, tankType: string) => {
-    const initials = tankName.charAt(0) + tankType.charAt(0).toUpperCase();
-    return initials;
-  };
-
-  /**
-   * Get tank status color
-   */
-  const getTankStatusColor = (level: number) => {
-    if (level >= 80) return 'text-green-500';
-    if (level >= 50) return 'text-yellow-500';
-    if (level >= 20) return 'text-orange-500';
-    return 'text-red-500';
-  };
 
   return (
     <div className="min-h-screen bg-wa-light-bg dark:bg-wa-dark-bg">
@@ -178,11 +144,11 @@ export const Dashboard: React.FC = () => {
             <Droplets className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="wa-header-title">Smart Water Tank</h1>
+            <h1 className="wa-header-title">System Overview</h1>
             <p className="text-sm opacity-90">
-              {isConnected ? 'Connected' : 'Disconnected'} • by EmptyIdea
+              {isConnected ? 'Connected' : 'Disconnected'} • Status & Monitoring
             </p>
-              </div>
+          </div>
             </div>
 
         <div className="wa-header-actions">
@@ -233,297 +199,83 @@ export const Dashboard: React.FC = () => {
           </MaterialCard>
           </div>
 
-          {/* Tank Monitoring Section */}
+          {/* Status Console Section */}
+          <div className="fluid-margin">
+            <StatusConsole />
+          </div>
+
+          {/* Quick Actions Section */}
           <div className="fluid-margin">
             <div className="fluid-margin">
               <h2 className="text-responsive-lg font-semibold text-wa-light-text dark:text-wa-dark-text">
-                Tank Monitoring
+                Quick Actions
               </h2>
             </div>
           
-            {/* Tank Cards - WhatsApp Chat Style */}
-            <div className="fluid-gap-sm">
-              {/* Tank A Upper */}
-              {appState.systemSettings.sensors.upperTankA && (
-                <div className="wa-chat-item animate-wa-slide-up">
-                  <div className="relative">
-                    <div className="wa-avatar">
-                      {getTankAvatar('A', 'U')}
-                    </div>
-                    <div className={`wa-status-dot ${appState.tankData.tankA.upper > 20 ? 'online' : 'offline'}`} />
+            {/* Quick Action Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Monitor Page Button */}
+              <MaterialCard elevation={2} className="animate-wa-slide-up cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/monitor')}>
+                <div className="p-4 text-center">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Activity className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                        Tank A - Upper
-                      </h3>
-                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankA.upper)}`}>
-                        {appState.tankData.tankA.upper}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          appState.tankData.tankA.upper >= 80 ? 'bg-green-500' :
-                          appState.tankData.tankA.upper >= 50 ? 'bg-yellow-500' :
-                          appState.tankData.tankA.upper >= 20 ? 'bg-orange-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${appState.tankData.tankA.upper}%` }}
-                      />
-                    </div>
-                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                      {appState.tankData.tankA.upper >= 80 ? 'Excellent' :
-                       appState.tankData.tankA.upper >= 50 ? 'Good' :
-                       appState.tankData.tankA.upper >= 20 ? 'Low' : 'Critical'}
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Tank A Lower */}
-              {appState.systemSettings.sensors.lowerTankA && (
-                <div className="wa-chat-item animate-wa-slide-up">
-                  <div className="relative">
-                    <div className="wa-avatar">
-                      {getTankAvatar('A', 'L')}
-                    </div>
-                    <div className={`wa-status-dot ${appState.tankData.tankA.lower > 20 ? 'online' : 'offline'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                        Tank A - Lower
-                      </h3>
-                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankA.lower)}`}>
-                        {appState.tankData.tankA.lower}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          appState.tankData.tankA.lower >= 80 ? 'bg-green-500' :
-                          appState.tankData.tankA.lower >= 50 ? 'bg-yellow-500' :
-                          appState.tankData.tankA.lower >= 20 ? 'bg-orange-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${appState.tankData.tankA.lower}%` }}
-                      />
-                    </div>
-                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                      {appState.tankData.tankA.lower >= 80 ? 'Excellent' :
-                       appState.tankData.tankA.lower >= 50 ? 'Good' :
-                       appState.tankData.tankA.lower >= 20 ? 'Low' : 'Critical'}
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Tank B Upper */}
-              {appState.systemSettings.sensors.upperTankB && (
-                <div className="wa-chat-item animate-wa-slide-up">
-                  <div className="relative">
-                    <div className="wa-avatar">
-                      {getTankAvatar('B', 'U')}
-                    </div>
-                    <div className={`wa-status-dot ${appState.tankData.tankB.upper > 20 ? 'online' : 'offline'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                        Tank B - Upper
-                      </h3>
-                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankB.upper)}`}>
-                        {appState.tankData.tankB.upper}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          appState.tankData.tankB.upper >= 80 ? 'bg-green-500' :
-                          appState.tankData.tankB.upper >= 50 ? 'bg-yellow-500' :
-                          appState.tankData.tankB.upper >= 20 ? 'bg-orange-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${appState.tankData.tankB.upper}%` }}
-                      />
-                    </div>
-                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                      {appState.tankData.tankB.upper >= 80 ? 'Excellent' :
-                       appState.tankData.tankB.upper >= 50 ? 'Good' :
-                       appState.tankData.tankB.upper >= 20 ? 'Low' : 'Critical'}
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Tank B Lower */}
-              {appState.systemSettings.sensors.lowerTankB && (
-                <div className="wa-chat-item animate-wa-slide-up">
-                  <div className="relative">
-                    <div className="wa-avatar">
-                      {getTankAvatar('B', 'L')}
-                    </div>
-                    <div className={`wa-status-dot ${appState.tankData.tankB.lower > 20 ? 'online' : 'offline'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                        Tank B - Lower
-                      </h3>
-                      <span className={`text-wa-sm font-medium ${getTankStatusColor(appState.tankData.tankB.lower)}`}>
-                        {appState.tankData.tankB.lower}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-wa-light-border dark:bg-wa-dark-border rounded-full h-2 mb-1">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          appState.tankData.tankB.lower >= 80 ? 'bg-green-500' :
-                          appState.tankData.tankB.lower >= 50 ? 'bg-yellow-500' :
-                          appState.tankData.tankB.lower >= 20 ? 'bg-orange-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${appState.tankData.tankB.lower}%` }}
-                      />
-                    </div>
-                    <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                      {appState.tankData.tankB.lower >= 80 ? 'Excellent' :
-                       appState.tankData.tankB.lower >= 50 ? 'Good' :
-                       appState.tankData.tankB.lower >= 20 ? 'Low' : 'Critical'}
-                    </p>
-                  </div>
-                </div>
-              )}
-          
-            {/* Show message if no tanks are enabled */}
-            {!(appState.systemSettings.sensors.upperTankA || appState.systemSettings.sensors.lowerTankA || 
-               appState.systemSettings.sensors.upperTankB || appState.systemSettings.sensors.lowerTankB) && (
-                <div className="wa-empty-state">
-                  <Droplets className="wa-empty-state-icon" />
-                  <h3 className="wa-empty-state-title">No Tank Sensors Enabled</h3>
-                  <p className="wa-empty-state-description">
-                    Enable tank sensors in Settings to monitor tank levels
+                  <h3 className="text-sm font-semibold text-wa-light-text dark:text-wa-dark-text mb-1">
+                    Monitor & Control
+                  </h3>
+                  <p className="text-xs text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                    Tank levels & Motor control
                   </p>
-          </div>
-        )}
+                </div>
+              </MaterialCard>
+
+              {/* Devices Page Button */}
+              <MaterialCard elevation={2} className="animate-wa-slide-up cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/devices')}>
+                <div className="p-4 text-center">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Wifi className="w-6 h-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-wa-light-text dark:text-wa-dark-text mb-1">
+                    Devices
+                  </h3>
+                  <p className="text-xs text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                    Connection management
+                  </p>
+                </div>
+              </MaterialCard>
+
+              {/* Settings Page Button */}
+              <MaterialCard elevation={2} className="animate-wa-slide-up cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/settings')}>
+                <div className="p-4 text-center">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Settings className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-wa-light-text dark:text-wa-dark-text mb-1">
+                    Settings
+                  </h3>
+                  <p className="text-xs text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                    System configuration
+                  </p>
+                </div>
+              </MaterialCard>
+
+              {/* Hardware Settings Button */}
+              <MaterialCard elevation={2} className="animate-wa-slide-up cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/hardware-settings')}>
+                <div className="p-4 text-center">
+                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Zap className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-wa-light-text dark:text-wa-dark-text mb-1">
+                    Hardware
+                  </h3>
+                  <p className="text-xs text-wa-light-text-muted dark:text-wa-dark-text-muted">
+                    Advanced settings
+                  </p>
+                </div>
+              </MaterialCard>
             </div>
           </div>
 
-          {/* Motor Control Section */}
-          {appState.systemStatus.mode === 'Manual Mode' && (
-            <div className="mb-4">
-              <h2 className="text-wa-lg font-semibold text-wa-light-text dark:text-wa-dark-text mb-4">
-                Motor Control
-              </h2>
-              
-              <div className="space-y-3">
-              {/* Motor 1 Control */}
-              {appState.systemStatus.motor1Enabled && (
-                  <div className="wa-chat-item">
-                    <div className="wa-avatar">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                          Motor 1
-                        </h3>
-                        <span className={`text-wa-sm font-medium ${
-                          appState.systemStatus.motor1Status === 'ON' ? 'text-green-500' : 'text-gray-500'
-                        }`}>
-                          {appState.systemStatus.motor1Status}
-                        </span>
-                      </div>
-                      <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                        Manual control available
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleMotorToggle(1)}
-                      disabled={!appState.systemStatus.connected}
-                      className={`px-4 py-2 rounded-wa font-medium text-wa-sm transition-colors ${
-                        appState.systemStatus.connected 
-                          ? (appState.systemStatus.motor1Status === 'ON' 
-                              ? 'bg-red-500 hover:bg-red-600 text-white' 
-                              : 'bg-green-500 hover:bg-green-600 text-white')
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      {appState.systemStatus.motor1Status === 'ON' ? 'Stop' : 'Start'}
-                    </button>
-                </div>
-              )}
-
-              {/* Motor 2 Control */}
-              {appState.systemStatus.motor2Enabled && (
-                  <div className="wa-chat-item">
-                    <div className="wa-avatar">
-                      <Zap className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-wa-base font-semibold text-wa-light-text dark:text-wa-dark-text">
-                          Motor 2
-                        </h3>
-                        <span className={`text-wa-sm font-medium ${
-                          appState.systemStatus.motor2Status === 'ON' ? 'text-green-500' : 'text-gray-500'
-                        }`}>
-                          {appState.systemStatus.motor2Status}
-                        </span>
-                      </div>
-                      <p className="text-wa-sm text-wa-light-text-muted dark:text-wa-dark-text-muted">
-                        Manual control available
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleMotorToggle(2)}
-                      disabled={!appState.systemStatus.connected}
-                      className={`px-4 py-2 rounded-wa font-medium text-wa-sm transition-colors ${
-                        appState.systemStatus.connected 
-                          ? (appState.systemStatus.motor2Status === 'ON' 
-                              ? 'bg-red-500 hover:bg-red-600 text-white' 
-                              : 'bg-green-500 hover:bg-green-600 text-white')
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      {appState.systemStatus.motor2Status === 'ON' ? 'Stop' : 'Start'}
-                    </button>
-                  </div>
-                )}
-                </div>
-            </div>
-          )}
-
-          {/* Auto Mode Information */}
-          {appState.systemStatus.mode === 'Auto Mode' && (
-            <div className="mb-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-wa-lg p-4">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Activity className="w-5 h-5 text-blue-500" />
-                  <span className="text-wa-sm font-medium text-blue-700 dark:text-blue-300">
-                    Auto Mode Active
-                  </span>
-                </div>
-                <p className="text-wa-sm text-blue-600 dark:text-blue-400 mb-3">
-                  Motors are automatically controlled based on tank levels and system settings.
-                </p>
-                
-                {/* Motor 1 Automation Reason */}
-                {appState.systemStatus.motor1Enabled && (
-                  <div className="mb-2">
-                    <p className="text-wa-sm text-blue-600 dark:text-blue-400">
-                      <strong>Motor 1:</strong> {appState.systemStatus.motor1Status} - {appState.systemStatus.autoModeReasonMotor1}
-                    </p>
-                  </div>
-                )}
-                
-                {/* Motor 2 Automation Reason */}
-                {appState.systemStatus.motor2Enabled && (
-                  <div className="mb-2">
-                    <p className="text-wa-sm text-blue-600 dark:text-blue-400">
-                      <strong>Motor 2:</strong> {appState.systemStatus.motor2Status} - {appState.systemStatus.autoModeReasonMotor2}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </main>
       </PullToRefresh>
 

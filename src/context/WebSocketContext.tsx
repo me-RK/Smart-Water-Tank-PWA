@@ -495,6 +495,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             break;
           }
             
+          case 'systemStatusText': {
+            // System status text response from device
+            newState.isConnected = true;
+            newState.error = null;
+            // Store the status text in app state for the console to display
+            newState.systemStatusText = message.statusText || message.message || 'No status available';
+            break;
+          }
+            
           default: {
             // Handle legacy message types for backward compatibility
         if (message.MSV !== undefined && message.RTV === undefined && message.SM === undefined) {
@@ -807,6 +816,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           case 'getAllData':
             // Unified request for all data - more efficient than multiple separate requests
             ws.send('getAllData');
+            break;
+          case 'getSystemStatusText':
+            // Request system status text for console display
+            ws.send('getSystemStatusText');
             break;
           case 'getWiFiConfig':
             ws.send('getWiFiConfig');

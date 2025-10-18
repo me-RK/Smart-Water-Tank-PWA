@@ -37,6 +37,7 @@ import './App.css';
 
 // Lazy load pages for better performance and code splitting
 const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })));
+const Monitor = lazy(() => import('./pages/Monitor').then(module => ({ default: module.Monitor })));
 const Devices = lazy(() => import('./pages/Devices').then(module => ({ default: module.Devices })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
 const HardwareSettings = lazy(() => import('./pages/HardwareSettings').then(module => ({ default: module.HardwareSettings })));
@@ -94,6 +95,7 @@ const AppContent: React.FC = () => {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/monitor" element={<Monitor />} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/hardware-settings" element={<HardwareSettings />} />

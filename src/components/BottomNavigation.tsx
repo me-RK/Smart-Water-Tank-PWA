@@ -34,7 +34,7 @@ const getNavigationItems = (isConnected: boolean): NavigationItem[] => [
   },
   {
     id: 'monitor',
-    label: 'Monitor',
+    label: 'Monitor & Control',
     icon: Activity,
     path: '/monitor',
   },

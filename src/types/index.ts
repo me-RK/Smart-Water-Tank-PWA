@@ -168,7 +168,7 @@ export interface SystemStatus {
 // Enhanced WebSocket message types for v3.0 firmware protocol
 export interface WebSocketMessage {
   // Message types for v3.0 (including legacy support)
-  type?: 'homeData' | 'settingData' | 'sensorData' | 'allData' | 'wifiConfig' | 'motorState' | 'configUpdate' | 'wifiConfigUpdate' | 'systemReset' | 'motor1On' | 'motor1Off' | 'motor2On' | 'motor2Off' | 'getHomeData' | 'getSettingData' | 'getSensorData' | 'getAllData' | 'getWiFiConfig' | 'updateSettings' | 'wifiConfig' | 'motorControl' | 'settingsData';
+  type?: 'homeData' | 'settingData' | 'sensorData' | 'allData' | 'wifiConfig' | 'motorState' | 'configUpdate' | 'wifiConfigUpdate' | 'systemReset' | 'motor1On' | 'motor1Off' | 'motor2On' | 'motor2Off' | 'getHomeData' | 'getSettingData' | 'getSensorData' | 'getAllData' | 'getWiFiConfig' | 'getSystemStatusText' | 'updateSettings' | 'wifiConfig' | 'motorControl' | 'settingsData';
   
   // v3.0 Home Data Response Fields
   lastUpdate?: string;
@@ -358,4 +358,5 @@ export interface AppState {
   tankData: TankData;
   isConnected: boolean;
   error: string | null;
+  systemStatusText?: string; // Raw status text from device
 }
