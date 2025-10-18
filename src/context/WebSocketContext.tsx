@@ -533,7 +533,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const newWs = new WebSocket(wsUrl);
 
       newWs.onopen = () => {
-        console.log('WebSocket connected');
+        console.log('WebSocket connected successfully to:', wsUrl);
         setAppState((prev: AppState) => ({ 
           ...prev, 
           isConnected: true, 
@@ -558,8 +558,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       newWs.onerror = (event) => {
         const errorMsg = `WebSocket error: ${event.type}`;
-        console.error(errorMsg);
+        console.error('WebSocket connection error:', errorMsg, 'URL:', wsUrl);
         setLastError(errorMsg);
+        setIsReconnecting(false);
         setAppState((prev: AppState) => ({ 
           ...prev, 
           error: errorMsg,
@@ -567,8 +568,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }));
       };
 
-      newWs.onclose = () => {
-        console.log('WebSocket disconnected');
+      newWs.onclose = (event) => {
+        console.log('WebSocket disconnected:', event.code, event.reason);
         setAppState((prev: AppState) => ({ 
           ...prev, 
           isConnected: false,
@@ -576,28 +577,32 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }));
         setWs(null);
         
-        // Auto-reconnect with exponential backoff
-        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+        // Only auto-reconnect if it wasn't a manual disconnect
+        if (reconnectAttemptsRef.current < maxReconnectAttempts && event.code !== 1000) {
           const delay = initialReconnectDelay * Math.pow(2, reconnectAttemptsRef.current);
           reconnectAttemptsRef.current++;
           
-          console.log(`Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`);
+          console.log(`Auto-reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`);
           reconnectTimeoutRef.current = setTimeout(() => {
             connect(ip);
           }, delay);
         } else {
           setIsReconnecting(false);
-          setLastError('Max reconnection attempts reached');
+          if (event.code !== 1000) {
+            setLastError('Max reconnection attempts reached');
+          }
         }
       };
 
       setWs(newWs);
     } catch (err) {
-      setLastError(`Connection error: ${err}`);
+      const errorMsg = `Connection error: ${err}`;
+      console.error('Failed to create WebSocket connection:', errorMsg, 'IP:', ip);
+      setLastError(errorMsg);
       setIsReconnecting(false);
       setAppState((prev: AppState) => ({ 
         ...prev, 
-        error: `Connection error: ${err}`,
+        error: errorMsg,
         isConnected: false
       }));
     }

@@ -69,7 +69,8 @@ export const Devices: React.FC = () => {
     deviceIP,
     isConnected,
     connect,
-    disconnect
+    disconnect,
+    appState
   } = useWebSocket();
   const toast = useToast();
   const { connectionType } = useNetworkStatus();
@@ -89,23 +90,27 @@ export const Devices: React.FC = () => {
   const handleConnectToDevice = useCallback(async (deviceIP: string) => {
     setIsConnecting(true);
     try {
-      connect(deviceIP);
-      
       // Store as last connected device
       localStorage.setItem('lastConnectedDevice', deviceIP);
       setLastConnectedDevice(deviceIP);
+      
+      // Call the WebSocket connect function
+      connect(deviceIP);
       
       toast.showToast({
         type: 'success',
         message: `Connecting to ${deviceIP}`,
       });
-    } catch {
+      
+      // Don't reset isConnecting here - let the WebSocket connection state handle it
+      // The connection state will be updated by the WebSocket context
+    } catch (error) {
+      console.error('Connection failed:', error);
+      setIsConnecting(false);
       toast.showToast({
         type: 'error',
         message: 'Failed to connect to device',
       });
-    } finally {
-      setIsConnecting(false);
     }
   }, [connect, toast]);
 
@@ -132,6 +137,13 @@ export const Devices: React.FC = () => {
       setIsScanning(false);
     }
   }, [isConnected]);
+
+  // Monitor WebSocket connection state to reset local isConnecting state
+  useEffect(() => {
+    if (isConnected || appState.error) {
+      setIsConnecting(false);
+    }
+  }, [isConnected, appState.error]);
 
 
   /**
@@ -174,14 +186,15 @@ export const Devices: React.FC = () => {
       return;
     }
 
-    setIsConnecting(true);
     try {
       await handleConnectToDevice(manualIP.trim());
       setShowManualConnection(false);
     } catch (error) {
       console.error('Manual connection failed:', error);
-    } finally {
-      setIsConnecting(false);
+      toast.showToast({
+        type: 'error',
+        message: 'Failed to connect to device',
+      });
     }
   };
 
