@@ -17,7 +17,6 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { discoverEsp32Devices, getNetworkInfo, getLocalIP } from '../utils/connectionTest';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import { TopologyHardwareSettings } from '../components/TopologyHardwareSettings';
 
 interface NetworkDetails {
   // Device Info
@@ -82,7 +81,6 @@ export const Devices: React.FC = () => {
   const [networkDetails, setNetworkDetails] = useState<NetworkDetails | null>(null);
   const [isLoadingNetworkInfo, setIsLoadingNetworkInfo] = useState(false);
   const [showManualConnection, setShowManualConnection] = useState(false);
-  const [showHardwareSettings, setShowHardwareSettings] = useState(false);
   const [manualIP, setManualIP] = useState('');
 
   /**
@@ -356,7 +354,7 @@ export const Devices: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <button
-                      onClick={() => setShowHardwareSettings(true)}
+                      onClick={() => navigate('/hardware-settings')}
                       className="touch-responsive-sm px-2 sm:px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-wa text-sm font-medium transition-colors"
                       title="Hardware Settings"
                     >
@@ -728,12 +726,6 @@ export const Devices: React.FC = () => {
         </div>
       )}
 
-      {/* Hardware Settings Overlay */}
-      <TopologyHardwareSettings
-        isOpen={showHardwareSettings}
-        onClose={() => setShowHardwareSettings(false)}
-        deviceIP={deviceIP || ''}
-      />
 
       {/* Bottom Navigation */}
       <BottomNavigation />

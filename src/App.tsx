@@ -39,6 +39,7 @@ import './App.css';
 const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })));
 const Devices = lazy(() => import('./pages/Devices').then(module => ({ default: module.Devices })));
 const Settings = lazy(() => import('./pages/Settings').then(module => ({ default: module.Settings })));
+const HardwareSettings = lazy(() => import('./pages/HardwareSettings').then(module => ({ default: module.HardwareSettings })));
 
 /**
  * App Content Component
@@ -95,6 +96,7 @@ const AppContent: React.FC = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/hardware-settings" element={<HardwareSettings />} />
           </Routes>
         </Suspense>
       </SimpleConnectionGuard>
