@@ -27,7 +27,13 @@ import { Settings, Wifi, RefreshCw, Droplets, Activity, Zap } from 'lucide-react
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { appState, sendMessage, isConnected } = useWebSocket();
+  const { 
+    appState, 
+    sendMessage, 
+    isConnected, 
+    connectionStatus, 
+    manualSync 
+  } = useWebSocket();
   const { startDashboardSync, stopDashboardSync } = usePageData();
   const toast = useToast();
 
@@ -60,6 +66,31 @@ export const Dashboard: React.FC = () => {
       type: 'getAllData'
     });
   }, [isConnected, sendMessage]);
+
+  /**
+   * Handles enhanced manual sync with heartbeat system
+   */
+  const handleManualSync = useCallback(async () => {
+    try {
+      const success = await manualSync();
+      if (success) {
+        toast.showToast({
+          type: 'success',
+          message: 'Data synced successfully',
+        });
+      } else {
+        toast.showToast({
+          type: 'error',
+          message: 'Sync failed - check connection',
+        });
+      }
+    } catch (error) {
+      toast.showToast({
+        type: 'error',
+        message: 'Sync failed - check connection',
+      });
+    }
+  }, [manualSync, toast]);
 
   /**
    * Handle pull-to-refresh
@@ -195,6 +226,9 @@ export const Dashboard: React.FC = () => {
               autoModeReasons={appState.systemStatus.autoModeReasons ? [appState.systemStatus.autoModeReasons] : []}
               autoModeReasonMotor1={appState.systemStatus.autoModeReasonMotor1}
               autoModeReasonMotor2={appState.systemStatus.autoModeReasonMotor2}
+              onManualSync={handleManualSync}
+              isManualSyncLoading={connectionStatus.isChecking}
+              showEnhancedConnection={true}
             />
           </MaterialCard>
           </div>

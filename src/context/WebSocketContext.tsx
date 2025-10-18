@@ -6,6 +6,7 @@ import type { WebSocketContextType } from './WebSocketContextDefinition';
 import { Capacitor } from '@capacitor/core';
 import { MOTOR_CONFIGURATION_LABELS } from '../constants/motorConfigurations';
 import type { MotorConfigurationType } from '../constants/motorConfigurations';
+import { useConnectionHeartbeat } from '../hooks/useConnectionHeartbeat';
 
 // Re-export the context for easier imports
 export { WebSocketContext };
@@ -339,6 +340,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             
             // Update last successful data time when we receive valid data
             updateLastSuccessfulDataTime();
+            updateLastDataReceived();
             
             // Update system status
             newState.systemStatus = {
@@ -837,6 +839,22 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [ws]);
 
+  // Initialize connection heartbeat after sendMessage is defined
+  const {
+    connectionStatus,
+    startHeartbeat,
+    stopHeartbeat,
+    manualSync,
+    updateLastDataReceived,
+  } = useConnectionHeartbeat(
+    sendMessage,
+    appState.isConnected,
+    {
+      syncInterval: 30000, // 30 seconds default
+      timeoutDuration: 15000, // 15 seconds timeout
+      maxConsecutiveFailures: 3, // 3 failures = offline
+    }
+  );
 
   // Request local network access on mount
   useEffect(() => {
@@ -877,8 +895,13 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     isReconnecting,
     lastError,
     deviceIP,
-    setDeviceIP: handleSetDeviceIP
-  }), [appState, sendMessage, connect, disconnect, isReconnecting, lastError, deviceIP, handleSetDeviceIP]);
+    setDeviceIP: handleSetDeviceIP,
+    // Enhanced connection management
+    connectionStatus,
+    manualSync,
+    startHeartbeat,
+    stopHeartbeat
+  }), [appState, sendMessage, connect, disconnect, isReconnecting, lastError, deviceIP, handleSetDeviceIP, connectionStatus, manualSync, startHeartbeat, stopHeartbeat]);
 
   return (
     <WebSocketContext.Provider value={value}>

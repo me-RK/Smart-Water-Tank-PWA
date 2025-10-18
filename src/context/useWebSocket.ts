@@ -1,19 +1,6 @@
 import { useContext } from 'react';
 import { WebSocketContext } from './WebSocketContextDefinition';
-import type { AppState, WebSocketMessage } from '../types';
-
-interface WebSocketContextType {
-  appState: AppState;
-  sendMessage: (message: WebSocketMessage) => void;
-  connect: (host: string) => void;
-  disconnect: () => void;
-  isConnected: boolean;
-  error: string | null;
-  isReconnecting: boolean;
-  lastError: string | null;
-  deviceIP: string | null;
-  setDeviceIP: (ip: string) => void;
-}
+import type { WebSocketContextType } from './WebSocketContextDefinition';
 
 // Custom hook to use WebSocket context
 export const useWebSocket = (): WebSocketContextType => {

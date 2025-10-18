@@ -2,6 +2,7 @@ import React from 'react';
 import { Wifi, WifiOff, Clock, Zap, Settings, AlertCircle } from 'lucide-react';
 import type { MotorConfiguration } from '../types';
 import { getMotorConfigurationLabel } from '../constants/motorConfigurations';
+import { ConnectionStatusIndicator } from './ConnectionStatusIndicator';
 
 /**
  * Enhanced StatusCard Component
@@ -35,6 +36,10 @@ interface StatusCardProps {
   autoModeReasonMotor1?: string;        // v3.0 Motor 1 automation reason
   autoModeReasonMotor2?: string;        // v3.0 Motor 2 automation reason
   className?: string;                    // Additional CSS classes
+  // Enhanced connection management
+  onManualSync?: () => void;            // Manual sync callback
+  isManualSyncLoading?: boolean;        // Manual sync loading state
+  showEnhancedConnection?: boolean;     // Show enhanced connection status
 }
 
 export const StatusCard: React.FC<StatusCardProps> = ({
@@ -51,7 +56,10 @@ export const StatusCard: React.FC<StatusCardProps> = ({
   autoModeReasons,
   autoModeReasonMotor1,
   autoModeReasonMotor2,
-  className = ''
+  className = '',
+  onManualSync,
+  isManualSyncLoading = false,
+  showEnhancedConnection = false,
 }) => {
   /**
    * Formats runtime seconds into human-readable format
@@ -88,6 +96,26 @@ export const StatusCard: React.FC<StatusCardProps> = ({
       p-4 sm:p-6 transition-all duration-300
       ${className}
     `}>
+      {/* Enhanced Connection Status */}
+      {showEnhancedConnection && onManualSync && (
+        <div className="mb-4">
+          <ConnectionStatusIndicator
+            connectionStatus={{
+              isConnected: connected,
+              isChecking: isManualSyncLoading,
+              lastSuccessfulSync: new Date(lastUpdated),
+              lastSyncAttempt: null,
+              consecutiveFailures: 0,
+              connectionQuality: connected ? 'excellent' : 'offline',
+              syncInterval: 30000,
+            }}
+            onManualSync={onManualSync}
+            isManualSyncLoading={isManualSyncLoading}
+            compact={true}
+          />
+        </div>
+      )}
+
       {/* Compact Header */}
       <div className="mb-4">
         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">

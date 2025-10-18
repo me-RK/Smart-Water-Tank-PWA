@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 import type { AppState, WebSocketMessage } from '../types';
+import type { ConnectionStatus } from '../hooks/useConnectionHeartbeat';
 
 export interface WebSocketContextType {
   appState: AppState;
@@ -12,6 +13,11 @@ export interface WebSocketContextType {
   lastError: string | null;
   deviceIP: string | null;
   setDeviceIP: (ip: string) => void;
+  // Enhanced connection management
+  connectionStatus: ConnectionStatus;
+  manualSync: () => Promise<boolean>;
+  startHeartbeat: () => void;
+  stopHeartbeat: () => void;
 }
 
 export const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
