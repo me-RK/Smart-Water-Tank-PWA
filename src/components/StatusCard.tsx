@@ -145,7 +145,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
           <Clock className="w-4 h-4 text-purple-500 transition-all duration-300 hover:scale-110 hover:rotate-12" />
           <div className="min-w-0">
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              Updated
+              Last Updated
             </p>
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
               {formatLastUpdated(lastUpdated)}

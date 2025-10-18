@@ -11,7 +11,17 @@ import type { MotorConfigurationType } from '../constants/motorConfigurations';
 export { WebSocketContext };
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [appState, setAppState] = useState<AppState>(initialAppState);
+  // Initialize app state with persistent last updated time
+  const [appState, setAppState] = useState<AppState>(() => {
+    const initialState = { ...initialAppState };
+    if (typeof window !== 'undefined') {
+      const storedTime = localStorage.getItem('lastSuccessfulDataTime');
+      if (storedTime) {
+        initialState.systemStatus.lastUpdated = storedTime;
+      }
+    }
+    return initialState;
+  });
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [reconnectInterval, setReconnectInterval] = useState<NodeJS.Timeout | null>(null);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -26,6 +36,34 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 10;
   const initialReconnectDelay = 1000; // 1 second
+  
+  // Track last successful data received time
+  const [lastSuccessfulDataTime, setLastSuccessfulDataTime] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('lastSuccessfulDataTime') || new Date().toISOString();
+    }
+    return new Date().toISOString();
+  });
+
+  // Update app state when lastSuccessfulDataTime changes
+  useEffect(() => {
+    setAppState(prev => ({
+      ...prev,
+      systemStatus: {
+        ...prev.systemStatus,
+        lastUpdated: lastSuccessfulDataTime
+      }
+    }));
+  }, [lastSuccessfulDataTime]);
+
+  // Update last successful data time and persist to localStorage
+  const updateLastSuccessfulDataTime = useCallback(() => {
+    const currentTime = new Date().toISOString();
+    setLastSuccessfulDataTime(currentTime);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lastSuccessfulDataTime', currentTime);
+    }
+  }, []);
 
   // Local Network Access - iOS requirement
   const requestLocalNetworkAccess = useCallback(async () => {
@@ -299,6 +337,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             console.log('WebSocket - Received allData:', message);
             const mode = message.systemMode || 'Manual Mode';
             
+            // Update last successful data time when we receive valid data
+            updateLastSuccessfulDataTime();
+            
             // Update system status
             newState.systemStatus = {
               ...prevState.systemStatus,
@@ -314,7 +355,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               autoModeReasonMotor2: message.autoReasonMotor2 || 'NONE',
               autoModeReasons: message.autoReasonMotor1 || 'NONE',
               motorConfig: message.motorConfig || 'SINGLE_TANK_SINGLE_MOTOR',
-              lastUpdated: new Date().toISOString()
+              lastUpdated: lastSuccessfulDataTime
             };
             
             // Update tank data
@@ -500,7 +541,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {
       setAppState((prev: AppState) => ({ ...prev, error: 'Failed to parse ESP32 message' }));
     }
-  }, []);
+  }, [updateLastSuccessfulDataTime, lastSuccessfulDataTime]);
 
 
   // Connect to WebSocket with enhanced auto-reconnect
